@@ -1,14 +1,27 @@
 import { brotliDecompressSync } from 'node:zlib';
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const root = dirname(fileURLToPath(import.meta.url));
-const compressedPath = resolve(root, 'UPSHS-source.tar.br');
+const partsDir = resolve(root, 'source-parts');
+const partFiles = (await readdir(partsDir))
+  .filter((name) => /^part-\\d+\\.b64$/.test(name))
+  .sort();
+
+if (partFiles.length !== 7) {
+  throw new Error(`Expected 7 source parts, found ${partFiles.length}. Check the repository download.`);
+}
+
+const encoded = (await Promise.all(
+  partFiles.map((name) => readFile(resolve(partsDir, name), 'utf8')),
+)).join('').replace(/\\s+/g, '');
+
+const compressed = Buffer.from(encoded, 'base64');
+const tar = brotliDecompressSync(compressed);
 const tarPath = resolve(root, 'UPSHS-source.tar');
 
-const tar = brotliDecompressSync(await readFile(compressedPath));
 await writeFile(tarPath, tar);
 execFileSync('tar', ['-xf', tarPath, '-C', root], { stdio: 'inherit' });
 
