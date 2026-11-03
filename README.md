@@ -4,7 +4,7 @@ This repository contains the initial implementation source bundle for the propos
 
 ## Restore the full source tree
 
-The complete source is stored as a Brotli-compressed tar archive to keep the Git repository transfer compact. Requirements: Node.js 22.12+ and a system `tar` executable.
+The Brotli-compressed source archive is stored as seven base64 text parts under `source-parts/` so it can be committed through GitHub's text-file interface. Requirements: Node.js 22.12+ and a system `tar` executable.
 
 ```bash
 node restore-source.mjs
@@ -13,7 +13,7 @@ npm run check
 npm run build
 ```
 
-The restore script extracts the project files into the repository root. It does not overwrite this README or the restore script.
+The restore script joins the parts, reconstructs the archive and extracts the complete project into the repository root.
 
 ## Architecture
 
