@@ -1,0 +1,14 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import { getServerSupabase } from '../../lib/server';
+import type { SchoolEvent } from '../../lib/types';
+const supabase = getServerSupabase();
+const { data } = supabase ? await supabase.from('events').select('id,title,slug,description,location,starts_at,ends_at,cover_image_url,status').eq('status','published').order('starts_at',{ascending:true}).limit(40) : {data:[]};
+const events = (data || []) as SchoolEvent[];
+---
+<SiteLayout title="Events | University Practice SHS" description="Upcoming events and activities at University Practice Senior High School.">
+  <PageHero eyebrow="School calendar" title="Moments that bring our community together." description="Explore upcoming activities, school events and important dates shared by the school."/>
+  <section class="section"><div class="container">{events.length ? <div class="events-list">{events.map((event) => <article class="events-row"><div class="events-date"><strong>{new Date(event.starts_at).toLocaleDateString('en-GH',{day:'2-digit'})}</strong><span>{new Date(event.starts_at).toLocaleDateString('en-GH',{month:'long',year:'numeric'})}</span></div><div class="events-info"><h2><a href={`/events/${event.slug}/`}>{event.title}</a></h2><p>{event.description || 'Further information will be provided by the school.'}</p><span>⌖ {event.location || 'University Practice SHS, Cape Coast'}</span></div>{event.cover_image_url && <img src={event.cover_image_url} alt=""/>}</article>)}</div> : <div class="empty-state"><h3>No upcoming events have been published</h3><p>The school calendar will appear here when approved events are added by an authorised administrator.</p></div>}</div></section>
+</SiteLayout>
+<style>.events-list{display:grid;gap:13px}.events-row{display:grid;grid-template-columns:100px 1fr 160px;gap:22px;align-items:center;padding:22px;border:1px solid var(--line);border-radius:15px}.events-date{background:var(--mint);border-radius:12px;color:var(--green);padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:78px}.events-date strong{font:800 1.8rem Manrope}.events-date span{font-size:.68rem;font-weight:750;text-align:center}.events-info h2 a{color:inherit;text-decoration:none}.events-info h2 a:hover{color:var(--green)}.events-info h2{font:800 1.1rem Manrope;color:var(--navy);margin:0 0 7px}.events-info p{color:var(--muted);font-size:.83rem;line-height:1.65;margin:0 0 9px}.events-info>span{color:var(--green);font-size:.72rem;font-weight:750}.events-row>img{width:160px;height:110px;object-fit:cover;border-radius:10px}@media(max-width:620px){.events-row{grid-template-columns:70px 1fr;gap:13px;padding:14px}.events-row>img{grid-column:2;width:100%;height:140px}.events-date{min-height:70px}.events-date strong{font-size:1.4rem}}</style>

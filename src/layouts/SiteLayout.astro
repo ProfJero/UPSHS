@@ -1,0 +1,53 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { getRuntimeConfig, getServerSupabase } from '../lib/server';
+interface Props { title?: string; description?: string; image?: string; noIndex?: boolean; }
+const { title = 'University Practice Senior High School | Cape Coast', description = 'Discover University Practice Senior High School, Cape Coast — our history, academic life, achievements and commitment to service.', image = '/images/upshs-social-card.svg', noIndex = false } = Astro.props;
+const runtimeConfig = getRuntimeConfig();
+const publicSupabase = getServerSupabase();
+const { data: siteSettings } = publicSupabase ? await publicSupabase.from('site_settings').select('school_name,short_name,motto,location,public_email,public_phone,postal_address,social_links').eq('id',true).maybeSingle() : { data: null };
+const siteOrigin = runtimeConfig.siteUrl || Astro.url.origin;
+const canonical = new URL(Astro.url.pathname, siteOrigin).toString();
+const socialImage = new URL(image, siteOrigin).toString();
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'EducationalOrganization',
+  name: siteSettings?.school_name || 'University Practice Senior High School',
+  alternateName: siteSettings?.short_name || 'UPSHS',
+  url: siteOrigin,
+  description,
+  address: { '@type': 'PostalAddress', addressLocality: 'Cape Coast', addressRegion: 'Central Region', addressCountry: 'GH' },
+  email: siteSettings?.public_email || undefined,
+  telephone: siteSettings?.public_phone || undefined,
+};
+---
+<!doctype html>
+<html lang="en-GH">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#082b46" />
+    <meta name="description" content={description} />
+    {noIndex && <meta name="robots" content="noindex,nofollow" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <meta property="og:type" content="website" /><meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:image" content={socialImage} />
+    <meta property="og:url" content={canonical} /><meta property="og:site_name" content="University Practice Senior High School" /><meta property="og:locale" content="en_GH" />
+    <meta name="twitter:card" content="summary_large_image" /><meta name="twitter:title" content={title} /><meta name="twitter:description" content={description} /><meta name="twitter:image" content={socialImage} />
+    <title>{title}</title>
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')}></script>
+    <script is:inline define:vars={{ config: { url: runtimeConfig.url, anonKey: runtimeConfig.anonKey, turnstileSiteKey: runtimeConfig.turnstileSiteKey } }}>window.__UPSHS_CONFIG__ = config;</script>
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <SiteHeader location={siteSettings?.location} />
+    <main id="main-content"><slot /></main>
+    <SiteFooter settings={siteSettings} />
+  </body>
+</html>

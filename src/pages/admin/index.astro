@@ -1,0 +1,8 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import AdminApp from '../../components/AdminApp';
+---
+<SiteLayout title="Staff Portal | University Practice SHS" description="Secure content management portal for authorised University Practice Senior High School website administrators." noIndex={true}>
+  <section class="admin-page"><div class="container admin-intro"><span class="eyebrow"><span></span> Official website management</span><h1>UNIPRA Staff Portal</h1><p>Secure access for authorised school administrators and communications personnel.</p><AdminApp client:load/></div></section>
+</SiteLayout>
+<style>.admin-intro{padding:48px 0 1px}.admin-intro>h1{font:800 clamp(2rem,4vw,3rem) Manrope;letter-spacing:-.06em;color:var(--navy);margin:14px 0 6px}.admin-intro>p{color:var(--muted);font-size:.9rem;margin:0}</style>

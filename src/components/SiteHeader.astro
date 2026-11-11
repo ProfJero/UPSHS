@@ -1,0 +1,28 @@
+---
+import BrandMark from './BrandMark.astro';
+const path = Astro.url.pathname;
+const { location = 'Cape Coast, Central Region, Ghana' } = Astro.props;
+const links = [
+  { label: 'Home', href: '/' }, { label: 'About', href: '/about/' },
+  { label: 'Academics', href: '/academics/' }, { label: 'Admissions', href: '/admissions/' },
+  { label: 'News', href: '/news/' }, { label: 'Announcements', href: '/announcements/' }, { label: 'Events', href: '/events/' }, { label: 'Gallery', href: '/gallery/' },
+];
+---
+<div class="topbar"><div class="container topbar__inner"><span><i class="dot"></i> {location}</span><span class="topbar__right"><a href="/contact/">Contact the School</a><a href="/admin/" class="staff-link">Staff access <span aria-hidden="true">↗</span></a></span></div></div>
+<header class="site-header"><div class="container nav-wrap"><BrandMark /><button class="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" data-menu-toggle><span></span><span></span><span></span></button><nav class="main-nav" data-nav aria-label="Main navigation">{links.map((link) => <a href={link.href} class:list={{active: path === link.href || (link.href !== '/' && path.startsWith(link.href))}}>{link.label}</a>)}<a class="nav-cta" href="/contact/">Get in touch <span>↗</span></a></nav></div></header>
+<script>
+  const toggle = document.querySelector('[data-menu-toggle]');
+  const nav = document.querySelector('[data-nav]');
+  toggle?.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!expanded));
+    nav?.classList.toggle('is-open', !expanded);
+  });
+  nav?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => {
+    nav.classList.remove('is-open'); toggle?.setAttribute('aria-expanded', 'false');
+  }));
+</script>
+<style>
+.topbar{background:#082b46;color:#dce9ef;font-size:.76rem}.topbar__inner{height:37px;display:flex;justify-content:space-between;align-items:center;gap:1rem}.topbar__inner span{display:flex;align-items:center;gap:.55rem}.dot{width:7px;height:7px;border-radius:50%;background:#71d5a5;display:inline-block}.topbar__right{gap:1.3rem!important}.topbar a{color:inherit;text-decoration:none}.topbar a:hover{color:white}.staff-link{color:#9ce0bc!important}.site-header{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}.nav-wrap{height:86px;display:flex;align-items:center;justify-content:space-between;gap:2rem}.main-nav{display:flex;align-items:center;gap:clamp(.8rem,1.65vw,1.6rem)}.main-nav>a{font-size:.84rem;color:#42566a;text-decoration:none;font-weight:650;white-space:nowrap;transition:color .2s}.main-nav>a:hover,.main-nav>a.active{color:var(--green)}.main-nav .nav-cta{background:var(--green);color:white;padding:.82rem 1.1rem;border-radius:999px}.main-nav .nav-cta:hover{background:var(--green-dark);color:white}.menu-toggle{display:none;background:none;border:0;padding:.5rem}.menu-toggle span{display:block;width:23px;height:2px;background:var(--navy);margin:5px}
+@media(max-width:960px){.nav-wrap{height:76px}.menu-toggle{display:block}.main-nav{display:none;position:absolute;left:0;right:0;top:100%;padding:1rem 5vw 1.35rem;background:white;border-bottom:1px solid var(--line);box-shadow:0 15px 25px #082b4612;align-items:stretch;flex-direction:column;gap:.1rem}.main-nav.is-open{display:flex}.main-nav>a{padding:.82rem .3rem}.main-nav .nav-cta{text-align:center;margin-top:.6rem}.topbar__inner{height:34px}.topbar__right>a:first-child{display:none}}
+</style>

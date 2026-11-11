@@ -1,0 +1,21 @@
+---
+interface Props { compact?: boolean; light?: boolean; }
+const { compact = false, light = false } = Astro.props;
+---
+<a class={`brand ${compact ? 'brand--compact' : ''} ${light ? 'brand--light' : ''}`} href="/" aria-label="University Practice Senior High School home">
+  <span class="brand__crest" aria-hidden="true">
+    <svg viewBox="0 0 56 64" role="img">
+      <path d="M5 5h46v33c0 10-10 17-23 22C15 55 5 48 5 38V5Z" fill="currentColor" opacity=".12"/>
+      <path d="M5 5h46v33c0 10-10 17-23 22C15 55 5 48 5 38V5Z" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M12 13h32v20H12z" fill="currentColor" opacity=".14"/>
+      <path d="M14 17h28v16H14z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M28 16v17M15 24c6-4 9-4 13 0 4-4 7-4 13 0" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M28 34v11m0-11 5-6m-5 6-5-6m5 2 3-7m-3 7-3-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M12 42c6 5 10 7 16 9 6-2 10-4 16-9" stroke="currentColor" stroke-width="1.5" fill="none"/>
+    </svg>
+  </span>
+  {!compact && <span class="brand__words"><strong>UNIVERSITY PRACTICE</strong><strong>SENIOR HIGH SCHOOL</strong><small>CAPE COAST</small></span>}
+</a>
+<style>
+.brand{display:inline-flex;align-items:center;gap:.72rem;color:var(--navy);text-decoration:none;min-width:0}.brand__crest{width:49px;height:56px;display:grid;place-items:center;color:var(--green);flex:none}.brand__crest svg{width:100%;height:100%}.brand__words{display:flex;flex-direction:column;line-height:1.12;letter-spacing:.035em;font-size:.76rem;font-weight:800}.brand__words small{color:var(--green);font-size:.57rem;letter-spacing:.2em;margin-top:.32rem}.brand--compact .brand__crest{width:38px;height:44px}.brand--light{color:white}.brand--light .brand__words small{color:#8ce0b5}
+</style>

@@ -1,0 +1,14 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import NewsCard from '../../components/NewsCard.astro';
+import { getServerSupabase } from '../../lib/server';
+import type { NewsPost } from '../../lib/types';
+const supabase = getServerSupabase();
+const { data } = supabase ? await supabase.from('news_posts').select('id,title,slug,excerpt,content,cover_image_url,published_at,created_at,category:news_categories(name,slug)').eq('status','published').order('published_at',{ascending:false}).limit(30) : {data:[]};
+const posts = (data || []) as unknown as NewsPost[];
+---
+<SiteLayout title="News & Events | University Practice SHS" description="School news, announcements and stories from University Practice Senior High School, Cape Coast.">
+  <PageHero eyebrow="News & updates" title="The latest from our school community." description="Stories, announcements and achievements that bring the UNIPRA community together." />
+  <section class="section"><div class="container">{posts.length ? <div class="news-grid">{posts.map((post) => <NewsCard post={post}/>)}</div> : <div class="empty-state"><h3>News and stories are coming soon</h3><p>When the school communications team publishes approved updates, they will appear here. In the meantime, explore the school's history and academic information.</p><a class="button button--outline" href="/about/">Explore UNIPRA <span>↗</span></a></div>}</div></section>
+</SiteLayout>

@@ -1,0 +1,13 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import { getServerSupabase } from '../../lib/server';
+const supabase = getServerSupabase();
+const { data: page } = supabase ? await supabase.from('pages').select('title,slug,summary,content,hero_image_url,meta_description,published_at').eq('slug',Astro.params.slug).eq('status','published').maybeSingle() : {data:null};
+if (!page) Astro.response.status = 404;
+const paragraphs = String(page?.content || '').split(/\n\s*\n/).filter(Boolean);
+---
+<SiteLayout title={page ? `${page.title} | UNIPRA` : 'Page not found | UNIPRA'} description={page?.meta_description || page?.summary || 'Information from University Practice Senior High School.'} noIndex={!page}>
+  {page ? <><PageHero eyebrow="School information" title={page.title} description={page.summary || 'Information from University Practice Senior High School.'}/><section class="section"><div class="container prose">{page.hero_image_url && <img class="page-cover" src={page.hero_image_url} alt={page.title}/>}{paragraphs.map((paragraph)=><p>{paragraph}</p>)}<a class="button button--outline" href="/">Return home <span>↗</span></a></div></section></> : <section class="section"><div class="container empty-state"><h3>This page is not available</h3><p>The page may not have been published or the address may be incorrect.</p><a class="button button--primary" href="/">Return home</a></div></section>}
+</SiteLayout>
+<style>.page-cover{width:100%;max-height:460px;object-fit:cover;border-radius:20px;margin-bottom:28px}</style>

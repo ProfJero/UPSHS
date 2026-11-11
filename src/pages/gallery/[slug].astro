@@ -1,0 +1,13 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import { getServerSupabase } from '../../lib/server';
+const supabase = getServerSupabase();
+const { data: album } = supabase ? await supabase.from('gallery_albums').select('id,title,slug,description,cover_image_url,items:gallery_items(id,image_url,caption,alt_text,display_order)').eq('slug', Astro.params.slug).eq('status','published').maybeSingle() : { data: null };
+if (!album) Astro.response.status = 404;
+const items = (album?.items || []).slice().sort((a:any,b:any) => a.display_order - b.display_order);
+---
+<SiteLayout title={album ? `${album.title} | UNIPRA Gallery` : 'Album not found | UNIPRA'} description={album?.description || 'Photographs from University Practice Senior High School.'} image={album?.cover_image_url || undefined} noIndex={!album}>
+  {album ? <><PageHero eyebrow="School gallery" title={album.title} description={album.description || 'A collection of moments from the UNIPRA community.'}/><section class="section"><div class="container"><div class="gallery-detail__top"><span>{items.length} {items.length === 1 ? 'photograph' : 'photographs'}</span><a class="text-link" href="/gallery/">← All albums</a></div>{items.length ? <div class="gallery-detail-grid">{items.map((item:any) => <figure class="gallery-detail-item"><img src={item.image_url} alt={item.alt_text || item.caption || album.title} loading="lazy"/><figcaption>{item.caption || album.title}</figcaption></figure>)}</div> : <div class="empty-state"><h3>Photographs will be added soon</h3><p>Approved images for this album have not yet been published.</p></div>}</div></section></> : <section class="section"><div class="container empty-state"><h2>This album is unavailable</h2><p>The album may have been unpublished or the address may be incorrect.</p><a class="button button--primary" href="/gallery/">Browse the gallery</a></div></section>}
+</SiteLayout>
+<style>.gallery-detail__top{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:24px;color:var(--muted);font-size:.8rem}.gallery-detail-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.gallery-detail-item{margin:0;border:1px solid var(--line);border-radius:15px;overflow:hidden;background:#fff}.gallery-detail-item img{display:block;width:100%;height:250px;object-fit:cover;background:var(--mint)}.gallery-detail-item figcaption{padding:12px 14px;color:var(--navy);font-size:.78rem;line-height:1.5}@media(max-width:900px){.gallery-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.gallery-detail-grid{grid-template-columns:1fr}.gallery-detail-item img{height:240px}}</style>

@@ -1,0 +1,14 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import { getServerSupabase } from '../../lib/server';
+import type { GalleryAlbum } from '../../lib/types';
+const supabase = getServerSupabase();
+const { data } = supabase ? await supabase.from('gallery_albums').select('id,title,slug,description,cover_image_url,items:gallery_items(id,image_url,caption,alt_text,display_order)').eq('status','published').order('created_at',{ascending:false}).limit(30) : {data:[]};
+const albums = (data || []) as unknown as GalleryAlbum[];
+---
+<SiteLayout title="Gallery | University Practice SHS" description="Photographs and memories from University Practice Senior High School, Cape Coast.">
+  <PageHero eyebrow="School gallery" title="A window into life at UNIPRA." description="Moments, milestones and memories from across the school community."/>
+  <section class="section"><div class="container">{albums.length ? <div class="gallery-grid">{albums.map((album) => <article class="gallery-card"><a class="gallery-card__cover" href={`/gallery/${album.slug}/`} aria-label={`Open ${album.title} photo album`}>{album.cover_image_url ? <img src={album.cover_image_url} alt={album.title} loading="lazy"/> : <div class="image-placeholder"><span>UNIPRA</span><small>PHOTO ALBUM</small></div>}</a><div class="gallery-card__body"><h3><a href={`/gallery/${album.slug}/`}>{album.title}</a></h3><p>{album.description || `${album.items?.length || 0} photographs`}</p>{album.items?.length ? <div class="gallery-thumbs">{album.items.slice(0,3).map((item) => <img src={item.image_url} alt={item.alt_text || item.caption || album.title} loading="lazy"/>)}</div><span class="text-link">View album ↗</span> : null}</div></article>)}</div> : <div class="empty-state"><h3>School memories will be shared here</h3><p>Approved school photographs and event albums will be published here by the media team.</p></div>}</div></section>
+</SiteLayout>
+<style>.gallery-thumbs{display:flex;gap:6px;margin-top:12px}.gallery-thumbs img{width:48px;height:40px;object-fit:cover;border-radius:6px}</style>

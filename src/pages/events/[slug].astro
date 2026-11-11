@@ -1,0 +1,14 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import { getServerSupabase } from '../../lib/server';
+import { formatDate } from '../../lib/format';
+const supabase = getServerSupabase();
+const { data: event } = supabase ? await supabase.from('events').select('title,slug,description,location,starts_at,ends_at,cover_image_url,status').eq('slug', Astro.params.slug).eq('status','published').maybeSingle() : { data: null };
+if (!event) Astro.response.status = 404;
+const dateText = event ? `${formatDate(event.starts_at, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}${event.ends_at ? ` – ${formatDate(event.ends_at, { day: 'numeric', month: 'long', year: 'numeric' })}` : ''}` : '';
+---
+<SiteLayout title={event ? `${event.title} | UNIPRA Events` : 'Event not found | UNIPRA'} description={event?.description || 'School events and activities at University Practice Senior High School.'} image={event?.cover_image_url || undefined} noIndex={!event}>
+  {event ? <><PageHero eyebrow="School event" title={event.title} description={event.description || 'An event from the University Practice Senior High School community.'} image={event.cover_image_url || undefined}/><section class="section"><div class="container event-detail"><div class="event-detail__meta"><span><strong>Date</strong>{dateText}</span><span><strong>Venue</strong>{event.location || 'University Practice SHS, Cape Coast'}</span></div>{event.cover_image_url && <img class="event-detail__image" src={event.cover_image_url} alt={event.title}/>}<div class="prose"><p>{event.description || 'Further information will be provided by the school.'}</p></div><a class="button button--outline" href="/events/">← Back to events</a></div></section></> : <section class="section"><div class="container empty-state"><h2>This event is unavailable</h2><p>The event may have been unpublished or the address may be incorrect.</p><a class="button button--primary" href="/events/">Browse events</a></div></section>}
+</SiteLayout>
+<style>.event-detail{max-width:900px}.event-detail__meta{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:26px}.event-detail__meta span{display:flex;flex-direction:column;gap:7px;padding:17px;background:var(--mint);border-radius:12px;color:var(--navy);font-size:.86rem}.event-detail__meta strong{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--green)}.event-detail__image{width:100%;max-height:470px;object-fit:cover;border-radius:18px;margin-bottom:25px}@media(max-width:620px){.event-detail__meta{grid-template-columns:1fr}}</style>

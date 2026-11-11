@@ -1,0 +1,22 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import PageHero from '../components/PageHero.astro';
+---
+<SiteLayout title="Privacy Notice | University Practice SHS" description="How the University Practice SHS website handles enquiries and website administration information.">
+  <PageHero eyebrow="Website information" title="Privacy notice." description="A transparent explanation of the limited information this website may collect and how it should be handled." />
+  <section class="section"><div class="container prose privacy-content">
+    <p><strong>Draft notice for school review.</strong> This wording must be reviewed and formally adopted by the school's authorised management before the website is launched as an official service.</p>
+    <h2>Information submitted through the enquiry form</h2>
+    <p>If you use the contact form, the website collects the name, email address, subject and message you choose to provide. The information is used to receive, route and respond to your enquiry.</p>
+    <h2>How enquiries are handled</h2>
+    <p>Enquiries are available only to authorised website staff with an assigned role. The school should define a retention period and delete messages when they are no longer needed for the purpose for which they were submitted, subject to any applicable record-keeping obligations.</p>
+    <h2>Security and verification</h2>
+    <p>The contact form uses an anti-automation verification service. Website administration uses authenticated staff accounts and database access policies. No website can guarantee absolute security, so visitors should not submit confidential student, health, financial or other sensitive information through the public enquiry form.</p>
+    <h2>Student photographs and personal information</h2>
+    <p>Identifiable student photographs and personal information should only be published after the school has confirmed an appropriate lawful basis, permissions and internal approval process. The website should not publish private student records.</p>
+    <h2>Questions and requests</h2>
+    <p>For questions about information submitted through this website, contact the school using its verified official contact details. The final live version of this notice should include the school's approved privacy contact and retention policy.</p>
+    <p class="privacy-updated">This notice is a starter draft and must be confirmed before public launch.</p>
+  </div></section>
+</SiteLayout>
+<style>.privacy-content{max-width:820px}.privacy-content h2{font:800 1.2rem Manrope;color:var(--navy);margin:32px 0 9px}.privacy-content p{font-size:.9rem;line-height:1.85;color:var(--muted)}.privacy-updated{margin-top:34px;padding:14px 16px;background:#fff8e8;border-radius:10px;color:#735a27!important;font-size:.78rem!important}</style>
