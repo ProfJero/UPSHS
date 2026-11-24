@@ -1,0 +1,5 @@
+# Copy to api/.dev.vars for `npm run api:dev`. Never commit the real file.
+FIREBASE_SERVICE_ACCOUNT={"type":"service_account","project_id":"...","client_email":"...","private_key":"-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"}
+CLOUDINARY_API_SECRET=
+TURNSTILE_SECRET_KEY=
+REBUILD_HOOK_URL=

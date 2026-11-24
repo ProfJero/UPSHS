@@ -1,0 +1,101 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Icon from '../components/Icon.astro';
+import Media from '../components/Media.astro';
+import NewsCard from '../components/NewsCard.astro';
+import { CLUBS, SPORTS } from '../data/school';
+import { getContent } from '../lib/content';
+const { albums, news } = await getContent();
+const lifeNews = news.filter((n) => ['Sports', 'Arts & Culture', 'Clubs & Societies', 'Community'].includes(n.category || '')).slice(0, 3);
+const photos = albums.flatMap((a) => (a.images || []).slice(0, 2).map((img) => ({ img, album: a }))).slice(0, 8);
+const crumbs = [{ name: 'Student Life', href: '/student-life/' }];
+---
+<BaseLayout title="Student Life — Clubs, Sports & Culture" description="Life at University Practice SHS beyond the classroom: clubs and societies, sports, culture, leadership and service in Cape Coast." breadcrumbs={crumbs}>
+  <PageHero eyebrow="Student life" title="Find your people. Find your voice." lead="Clubs, sport, culture and leadership — the experiences that turn students into well-rounded UNIPRANs." crumbs={crumbs} />
+
+  <section class="section">
+    <div class="container">
+      <SectionHead eyebrow="Clubs & societies" title="Something for <em>every</em> interest." lead="Students lead and take part in a wide range of clubs. Activities on offer are set each year by the school." />
+      <div class="clubs" id="clubs" data-stagger>
+        {CLUBS.map((c) => (
+          <div class="club" data-reveal="scale">
+            <span class="club__icon"><Icon name={c.icon} size={24} /></span>
+            <span>{c.title}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--inverse sports">
+    <div class="container split">
+      <div>
+        <p class="eyebrow">Sports</p>
+        <h2 class="display h2">Play hard. <em class="gold-text">Play fair.</em></h2>
+        <p class="lead">From inter-house competitions to regional championships, sport at UNIPRA builds teamwork, discipline and school spirit.</p>
+      </div>
+      <ul class="sports__list" data-stagger>
+        {SPORTS.map((sp) => <li data-reveal><Icon name="activity" size={18} /> {sp}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="life-grid" data-stagger>
+        <article class="life-card" data-reveal><Icon name="shield" size={28} /><h3 class="display">Student leadership</h3><p>Prefects and the Students’ Representative Council give students a voice and real responsibility in running school life.</p></article>
+        <article class="life-card" data-reveal><Icon name="heart" size={28} /><h3 class="display">Service projects</h3><p>Living our motto through community clean-ups, outreach and volunteering in and around Cape Coast.</p></article>
+        <article class="life-card" data-reveal><Icon name="music" size={28} /><h3 class="display">Culture & worship</h3><p>Cultural displays, music, drama, entertainment nights and religious fellowships that celebrate who we are.</p></article>
+        <article class="life-card" data-reveal><Icon name="home" size={28} /><h3 class="display">Daily life</h3><p>A structured routine of classes, prep, meals and recreation, with staff who care for students’ wellbeing.</p></article>
+      </div>
+    </div>
+  </section>
+
+  {photos.length > 0 && (
+    <section class="section section--alt">
+      <div class="container">
+        <SectionHead eyebrow="In pictures" title="Life at <em>UNIPRA</em>."><a class="btn btn--ghost" href="/gallery/">Gallery <Icon name="arrow-right" size={18} /></a></SectionHead>
+        <div class="photos" data-stagger>
+          {photos.map(({ img, album }) => <a href={`/gallery/${album.slug}/`} class="photo" data-reveal="scale"><Media media={img} alt={img.alt || album.title} w={500} ratio={1} /></a>)}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {lifeNews.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <SectionHead eyebrow="Stories" title="Recent <em>highlights</em>." />
+        <div class="grid grid-3">{lifeNews.map((p, i) => <NewsCard post={p} i={i} />)}</div>
+      </div>
+    </section>
+  )}
+</BaseLayout>
+<style>
+  .clubs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .club { display: grid; justify-items: center; text-align: center; gap: 12px; padding: 26px 14px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); font-weight: 700; font-size: .95rem; transition: transform .4s var(--ease), box-shadow .4s var(--ease), border-color .3s; }
+  .club:hover { transform: translateY(-5px) rotate(-1deg); box-shadow: var(--shadow); border-color: var(--accent); }
+  .club__icon { width: 56px; height: 56px; border-radius: 18px; display: grid; place-items: center; background: var(--brand-tint); color: var(--brand-ink); transition: transform .5s var(--ease), background .3s, color .3s; }
+  .club:hover .club__icon { transform: scale(1.1) rotate(8deg); background: var(--accent); color: var(--accent-ink); }
+  @media (max-width: 1000px) { .clubs { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 560px) { .clubs { grid-template-columns: 1fr 1fr; } }
+  .sports .split > div { display: grid; gap: 18px; }
+  .sports__list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .sports__list li { display: flex; gap: 12px; align-items: center; padding: 20px; border-radius: var(--radius); background: rgb(255 255 255 / .05); border: 1px solid rgb(255 255 255 / .1); font-weight: 700; color: #fff; transition: background .3s; }
+  .sports__list li:hover { background: rgb(255 255 255 / .1); }
+  .sports__list :global(svg) { color: var(--gold); }
+  .life-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .life-card { padding: 30px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); display: grid; gap: 12px; align-content: start; color: var(--brand-ink); transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
+  .life-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+  .life-card h3 { font-size: 1.4rem; color: var(--text); }
+  .life-card p { color: var(--muted); font-size: .94rem; }
+  @media (max-width: 1000px) { .life-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .life-grid { grid-template-columns: 1fr; } }
+  .photos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .photo { position: relative; aspect-ratio: 1; border-radius: var(--radius); overflow: hidden; }
+  .photo :global(img) { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
+  .photo:hover :global(img) { transform: scale(1.08); }
+  @media (max-width: 700px) { .photos { grid-template-columns: 1fr 1fr; } }
+</style>

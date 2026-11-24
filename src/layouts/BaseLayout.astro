@@ -1,0 +1,199 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import CommandPalette from '../components/CommandPalette.astro';
+import Icon from '../components/Icon.astro';
+import { getContent, school, socials, SITE_URL, API_URL, cld } from '../lib/content';
+import { FOUNDED } from '../data/school';
+
+interface Crumb { name: string; href: string }
+interface Props {
+  title: string;
+  description: string;
+  image?: string | null;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown>[];
+  breadcrumbs?: Crumb[];
+  publishedTime?: string | null;
+  modifiedTime?: string | null;
+  /** Hide the global announcement bar (e.g. on the notice board itself). */
+  hideAnnouncements?: boolean;
+}
+
+const { title, description, image, type = 'website', noindex = false, jsonLd = [], breadcrumbs, publishedTime, modifiedTime, hideAnnouncements = false } = Astro.props;
+const content = await getContent();
+const s = await school();
+const fullTitle = Astro.url.pathname === '/' ? title : `${title} | ${s.shortName} Cape Coast`;
+const canonical = new URL(Astro.url.pathname, SITE_URL).toString();
+const ogImage = image ? (image.startsWith('http') ? cld(image, { w: 1200, h: 630, crop: 'fill' }) : new URL(image, SITE_URL).toString()) : new URL('/images/og-default.jpg', SITE_URL).toString();
+const siteVerification = import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION;
+const bingVerification = import.meta.env.PUBLIC_BING_SITE_VERIFICATION;
+const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
+
+const orgId = `${SITE_URL}/#school`;
+const baseLd: Record<string, unknown>[] = [
+  {
+    '@context': 'https://schema.org',
+    '@type': ['HighSchool', 'EducationalOrganization'],
+    '@id': orgId,
+    name: s.name,
+    alternateName: [s.shortName, 'UNIPRA', 'University Practice SHS', 'University Practice Senior High School, Cape Coast'],
+    url: SITE_URL,
+    logo: { '@type': 'ImageObject', url: `${SITE_URL}/images/brand/icon-512.png`, width: 512, height: 512 },
+    image: `${SITE_URL}/images/og-default.jpg`,
+    slogan: s.motto,
+    foundingDate: FOUNDED,
+    description: 'A public senior high school in Cape Coast, Ghana, founded in 1976 as the practice school of the University of Cape Coast.',
+    address: { '@type': 'PostalAddress', streetAddress: s.address || 'University of Cape Coast', addressLocality: 'Cape Coast', addressRegion: 'Central Region', addressCountry: 'GH' },
+    ...(s.phone ? { telephone: s.phone } : {}),
+    ...(s.email ? { email: s.email } : {}),
+    sameAs: socials(s).map((x) => x.url),
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SITE_URL}/#website`,
+    url: SITE_URL,
+    name: s.name,
+    inLanguage: 'en-GH',
+    publisher: { '@id': orgId },
+    potentialAction: { '@type': 'SearchAction', target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/search/?q={search_term_string}` }, 'query-input': 'required name=search_term_string' },
+  },
+];
+if (breadcrumbs?.length) {
+  baseLd.push({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [{ name: 'Home', href: '/' }, ...breadcrumbs].map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: new URL(c.href, SITE_URL).toString() })),
+  });
+}
+const ld = JSON.stringify([...baseLd, ...jsonLd]).replace(/</g, '\\u003c');
+const pinned = hideAnnouncements ? [] : content.announcements.filter((a) => a.pinned || a.priority === 'urgent').slice(0, 3);
+---
+<!doctype html>
+<html lang="en-GH" data-theme="light" data-accent="royal" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
+    {siteVerification && <meta name="google-site-verification" content={siteVerification} />}
+    {bingVerification && <meta name="msvalidate.01" content={bingVerification} />}
+    <meta name="author" content={s.name} />
+    <meta name="application-name" content={s.shortName} />
+    <meta name="apple-mobile-web-app-title" content={s.shortName} />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#f7f6f1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#070a1c" media="(prefers-color-scheme: dark)" />
+    <meta name="geo.region" content="GH-CP" />
+    <meta name="geo.placename" content="Cape Coast" />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={s.name} />
+    <meta property="og:locale" content="en_GH" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/images/brand/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/images/brand/icon-180.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${s.shortName} News`} href="/rss.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,400..700,50;1,9..144,400..700,50&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" />
+
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        function apply() {
+          var mode = 'system', accent = 'royal', motion = 'auto';
+          try { mode = localStorage.getItem('upshs-mode') || 'system'; accent = localStorage.getItem('upshs-accent') || 'royal'; motion = localStorage.getItem('upshs-motion') || 'auto'; } catch (e) {}
+          var dark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          d.dataset.theme = dark ? 'dark' : 'light';
+          d.dataset.mode = mode;
+          d.dataset.accent = accent;
+          if (motion === 'reduced') d.dataset.motion = 'reduced'; else delete d.dataset.motion;
+          d.classList.remove('no-js');
+        }
+        apply();
+        window.__upshsApplyTheme = apply;
+        document.addEventListener('astro:after-swap', apply);
+      })();
+    </script>
+    <script is:inline type="application/ld+json" set:html={ld}></script>
+    <script is:inline define:vars={{ apiUrl: API_URL, turnstileKey }}>window.UPSHS = { apiUrl: apiUrl, turnstileKey: turnstileKey };</script>
+    <ClientRouter fallback="swap" />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="scroll-progress" aria-hidden="true" transition:persist="progress"><span></span></div>
+    {pinned.length > 0 && (
+      <div class:list={['announce-bar', { 'is-static': pinned.length === 1 }]} role="region" aria-label="Important announcements">
+        <div class="announce-bar__track">
+          {[0, 1].map((dup) => (
+            <div class="announce-bar__group" aria-hidden={dup === 1 ? 'true' : undefined}>
+              {pinned.map((a) => (
+                <a href={a.linkUrl || '/announcements/'} class="announce-bar__item" tabindex={dup === 1 ? -1 : undefined}>
+                  <span class:list={['announce-bar__dot', a.priority]}></span>
+                  <strong>{a.title}</strong>
+                  <span class="announce-bar__more">{a.linkLabel || 'Read notice'} →</span>
+                </a>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+    <SiteHeader />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter />
+    <CommandPalette />
+    <button class="to-top" type="button" aria-label="Back to top" data-to-top><Icon name="arrow-up" size={18} /></button>
+    <script>
+      import { initSite } from '../scripts/site';
+      document.addEventListener('astro:page-load', initSite);
+    </script>
+    <style is:global>
+      .scroll-progress { position: fixed; inset: 0 0 auto 0; height: 3px; z-index: 120; pointer-events: none; }
+      .scroll-progress span { display: block; height: 100%; width: 100%; transform-origin: 0 50%; transform: scaleX(var(--progress, 0)); background: linear-gradient(90deg, var(--accent), var(--flame)); }
+      .announce-bar { position: relative; z-index: 60; overflow: hidden; background: var(--navy-deep); color: #fff; font-size: .86rem; border-bottom: 1px solid rgb(255 255 255 / .08); }
+      .announce-bar__track { display: flex; width: max-content; animation: marquee 40s linear infinite; }
+      .announce-bar:hover .announce-bar__track { animation-play-state: paused; }
+      .announce-bar.is-static .announce-bar__track { animation: none; width: auto; justify-content: center; }
+      .announce-bar.is-static .announce-bar__group + .announce-bar__group { display: none; }
+      .announce-bar__group { display: flex; gap: 56px; padding: 10px 28px; }
+      .announce-bar__item { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; white-space: nowrap; }
+      .announce-bar__item strong { font-weight: 700; }
+      .announce-bar__more { color: var(--gold); font-weight: 700; }
+      .announce-bar__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); position: relative; }
+      .announce-bar__dot.urgent { background: var(--flame); }
+      .announce-bar__dot::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: inherit; animation: pulse-ring 1.8s var(--ease) infinite; }
+      .to-top { position: fixed; right: 20px; bottom: 20px; z-index: 70; width: 48px; height: 48px; border-radius: 50%; border: 0; display: grid; place-items: center; background: var(--brand); color: #fff; box-shadow: var(--shadow); opacity: 0; transform: translateY(16px) scale(.9); pointer-events: none; transition: opacity .4s var(--ease), transform .4s var(--ease); }
+      .to-top.is-shown { opacity: 1; transform: none; pointer-events: auto; }
+      .to-top:hover { transform: translateY(-3px); }
+      main:focus { outline: none; }
+    </style>
+  </body>
+</html>

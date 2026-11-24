@@ -1,19 +1,14 @@
 /// <reference types="astro/client" />
-/// <reference types="@astrojs/cloudflare" />
 
-interface Env {
-  PUBLIC_SUPABASE_URL?: string;
-  PUBLIC_SUPABASE_ANON_KEY?: string;
-  PUBLIC_SITE_URL?: string;
-  PUBLIC_TURNSTILE_SITE_KEY?: string;
-  SUPABASE_SERVICE_ROLE_KEY?: string;
-  TURNSTILE_SECRET_KEY?: string;
+interface ImportMetaEnv {
+  readonly PUBLIC_API_URL?: string;
+  readonly PUBLIC_SITE_URL?: string;
+  readonly PUBLIC_GOOGLE_SITE_VERIFICATION?: string;
+  readonly PUBLIC_BING_SITE_VERIFICATION?: string;
+  readonly PUBLIC_TURNSTILE_SITE_KEY?: string;
+  readonly PUBLIC_FIREBASE_API_KEY?: string;
+  readonly PUBLIC_FIREBASE_AUTH_DOMAIN?: string;
+  readonly PUBLIC_FIREBASE_PROJECT_ID?: string;
+  readonly PUBLIC_FIREBASE_APP_ID?: string;
 }
-
-interface Window {
-    __UPSHS_CONFIG__?: {
-      url?: string;
-      anonKey?: string;
-      turnstileSiteKey?: string;
-    };
-}
+interface ImportMeta { readonly env: ImportMetaEnv }

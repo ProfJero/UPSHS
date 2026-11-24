@@ -1,0 +1,7 @@
+---
+import { ICONS } from '../lib/icons';
+interface Props { name: string; size?: number; class?: string; stroke?: number }
+const { name, size = 20, class: className, stroke = 1.8 } = Astro.props;
+const body = ICONS[name] || ICONS.info;
+---
+<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width={stroke} stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class={className} set:html={body} />

@@ -1,0 +1,17 @@
+---
+// Animated layered waves — a nod to the crest and to the sea at Cape Coast.
+interface Props { color?: string }
+const { color = 'var(--bg)' } = Astro.props;
+---
+<div class="waves" aria-hidden="true" style={`--wave-color:${color}`}>
+  <svg class="waves__layer waves__layer--3" viewBox="0 0 2880 120" preserveAspectRatio="none"><path d="M0 60c240 40 480 40 720 0s480-40 720 0 480 40 720 0 480-40 720 0v60H0Z" /></svg>
+  <svg class="waves__layer waves__layer--2" viewBox="0 0 2880 120" preserveAspectRatio="none"><path d="M0 66c240-28 480-28 720 0s480 28 720 0 480-28 720 0 480 28 720 0v54H0Z" /></svg>
+  <svg class="waves__layer waves__layer--1" viewBox="0 0 2880 120" preserveAspectRatio="none"><path d="M0 80c240 26 480 26 720 0s480-26 720 0 480 26 720 0 480-26 720 0v40H0Z" /></svg>
+</div>
+<style>
+  .waves { position: absolute; left: 0; right: 0; bottom: -1px; height: clamp(56px, 7vw, 100px); overflow: hidden; pointer-events: none; z-index: 1; }
+  .waves__layer { position: absolute; bottom: 0; left: 0; width: 200%; height: 100%; fill: var(--wave-color); animation: wave 22s linear infinite; }
+  .waves__layer--2 { opacity: .35; animation-duration: 30s; animation-direction: reverse; height: 92%; }
+  .waves__layer--3 { opacity: .18; animation-duration: 40s; height: 100%; }
+  .waves__layer--1 { height: 70%; }
+</style>

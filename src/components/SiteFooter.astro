@@ -1,10 +1,105 @@
 ---
-import BrandMark from './BrandMark.astro';
-import { safeHttpUrl } from '../lib/format';
-interface Props { settings?: { school_name?: string; short_name?: string; motto?: string; location?: string; public_email?: string | null; public_phone?: string | null; postal_address?: string | null; social_links?: Record<string,string> } | null; }
-const { settings } = Astro.props;
+import Icon from './Icon.astro';
+import Crest from './Crest.astro';
+import { school, socials } from '../lib/content';
+import { FOUNDED_YEAR } from '../data/school';
+
+const s = await school();
+const social = socials(s);
 const year = new Date().getFullYear();
-const socials = Object.entries(settings?.social_links || {}).map(([name,url]) => [name, safeHttpUrl(url)] as const).filter((item): item is readonly [string,string] => Boolean(item[1]));
+const cols = [
+  { title: 'School', links: [['Our story', '/about/'], ['Leadership', '/about/leadership/'], ['Achievements', '/about/achievements/'], ['Academics', '/academics/'], ['Student life', '/student-life/']] },
+  { title: 'Stay informed', links: [['News & stories', '/news/'], ['Events calendar', '/events/'], ['Notice board', '/announcements/'], ['Gallery', '/gallery/'], ['Downloads', '/downloads/']] },
+  { title: 'Connect', links: [['Alumni network', '/alumni/'], ['FAQs', '/faq/'], ['Contact us', '/contact/'], ['Privacy notice', '/privacy/'], ['Staff portal', '/admin/']] },
+];
 ---
-<footer class="footer"><div class="container footer__main"><div class="footer__identity"><BrandMark light /><p>Learning with purpose. Growing in character. Serving the community.</p><span class="motto">“{settings?.motto || 'Service to the Community'}”</span>{socials.length > 0 && <div class="footer-socials">{socials.map(([name,url])=><a href={url} target="_blank" rel="noopener noreferrer">{name}</a>)}</div>}</div><div><h3>Explore</h3><a href="/about/">About the School</a><a href="/academics/">Academic Programmes</a><a href="/admissions/">Admissions</a><a href="/news/">News & Stories</a><a href="/announcements/">Announcements</a><a href="/events/">Events</a></div><div><h3>Connect</h3><a href="/gallery/">Photo Gallery</a><a href="/alumni/">Alumni</a><a href="/contact/">Contact Us</a><a href="/admin/">Staff Access</a><a href="/privacy/">Privacy Notice</a></div><div class="footer__contact"><h3>Find Us</h3><p>{settings?.postal_address || settings?.location || 'Cape Coast, Central Region, Ghana'}</p>{settings?.public_phone && <p><a href={`tel:${settings.public_phone}`}>{settings.public_phone}</a></p>}{settings?.public_email ? <p><a href={`mailto:${settings.public_email}`}>{settings.public_email}</a></p> : <p>Official contact details will be published after verification by the school.</p>}</div></div><div class="footer__bottom"><div class="container footer__bottom-inner"><span>© {year} {settings?.school_name || 'University Practice Senior High School'}. All rights reserved.</span><span>Built with care for the UNIPRA community.</span></div></div></footer>
-<style>.footer-socials{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.footer-socials a{border:1px solid #ffffff25;border-radius:99px;padding:5px 9px;text-transform:capitalize}</style>
+<footer class="site-footer">
+  <div class="site-footer__wave" aria-hidden="true">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d="M0 40c120 26 240 26 360 0s240-26 360 0 240 26 360 0 240-26 360 0v40H0Z" /></svg>
+  </div>
+  <div class="container">
+    <div class="site-footer__top">
+      <div class="site-footer__brand">
+        <Crest variant="floreat" size={120} />
+        <div>
+          <p class="display site-footer__motto">“{s.motto}”</p>
+          <p class="site-footer__about">University Practice Senior High School — UNIPRA — has served Cape Coast and Ghana since {FOUNDED_YEAR}.</p>
+          {social.length > 0 && (
+            <div class="site-footer__social">
+              {social.map((x) => <a href={x.url} target="_blank" rel="noopener noreferrer me" aria-label={x.name}><Icon name={x.icon} size={18} /></a>)}
+            </div>
+          )}
+        </div>
+      </div>
+      <div class="newsletter">
+        <h2 class="display">School updates, in your inbox.</h2>
+        <p>News, term dates and important notices. No spam — unsubscribe any time.</p>
+        <form data-api-form="/v1/public/subscribe" class="newsletter__form" novalidate>
+          <label class="sr-only" for="nl-email">Email address</label>
+          <input id="nl-email" class="input" type="email" name="email" placeholder="you@example.com" required autocomplete="email" />
+          <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <button class="btn btn--accent" type="submit">Subscribe <Icon name="arrow-right" size={17} /></button>
+          <p class="form-status" role="status" data-status data-success="Thank you — you are subscribed."></p>
+        </form>
+      </div>
+    </div>
+
+    <div class="site-footer__grid">
+      {cols.map((c) => (
+        <div>
+          <h3>{c.title}</h3>
+          <ul>{c.links.map(([label, href]) => <li><a href={href} data-astro-reload={href === '/admin/' ? true : undefined}>{label}</a></li>)}</ul>
+        </div>
+      ))}
+      <div class="site-footer__contact">
+        <h3>Visit us</h3>
+        <p><Icon name="map-pin" size={17} /> <span>{s.address || 'University of Cape Coast, Cape Coast, Central Region, Ghana'}</span></p>
+        {s.phone && <p><Icon name="phone" size={17} /> <a href={`tel:${s.phone.replace(/\s/g, '')}`}>{s.phone}</a></p>}
+        {s.email && <p><Icon name="mail" size={17} /> <a href={`mailto:${s.email}`}>{s.email}</a></p>}
+        {s.officeHours && <p><Icon name="clock" size={17} /> <span>{s.officeHours}</span></p>}
+        <a class="link-arrow" href="/contact/">Get directions <Icon name="arrow-up-right" size={16} /></a>
+      </div>
+    </div>
+
+    <div class="site-footer__bottom">
+      <p>© {year} {s.name}. All rights reserved.</p>
+      <p class="site-footer__floreat">Floreat UNIPRA</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer { position: relative; margin-top: 80px; background: var(--inverse-bg); color: #c9cde6; padding: 40px 0 28px; }
+  .site-footer__wave { position: absolute; left: 0; right: 0; top: -79px; height: 80px; color: var(--inverse-bg); pointer-events: none; }
+  .site-footer__wave svg { width: 100%; height: 100%; fill: currentColor; }
+  .site-footer__top { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(32px, 6vw, 80px); padding-bottom: 52px; border-bottom: 1px solid rgb(255 255 255 / .1); }
+  .site-footer__brand { display: flex; gap: 28px; align-items: center; }
+  .site-footer__brand img { flex: none; width: auto; height: 120px; filter: drop-shadow(0 12px 24px rgb(0 0 0 / .4)); }
+  .site-footer__motto { font-size: clamp(1.5rem, 2.6vw, 2rem); color: #fff; font-style: italic; line-height: 1.2; }
+  .site-footer__about { margin-top: 10px; font-size: .94rem; max-width: 420px; }
+  .site-footer__social { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+  .site-footer__social a { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: rgb(255 255 255 / .07); color: #fff; transition: background .2s, transform .3s var(--ease); }
+  .site-footer__social a:hover { background: var(--accent); color: var(--accent-ink); transform: translateY(-3px); }
+  .newsletter { padding: 28px; border-radius: var(--radius-lg); background: linear-gradient(140deg, rgb(255 255 255 / .07), rgb(255 255 255 / .02)); border: 1px solid rgb(255 255 255 / .1); }
+  .newsletter h2 { color: #fff; font-size: 1.6rem; }
+  .newsletter > p { margin-top: 6px; font-size: .92rem; }
+  .newsletter__form { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .newsletter__form .input { flex: 1 1 220px; background: rgb(255 255 255 / .06); border-color: rgb(255 255 255 / .16); color: #fff; }
+  .newsletter__form .input::placeholder { color: rgb(255 255 255 / .45); }
+  .newsletter__form .form-status { flex-basis: 100%; }
+  .site-footer__grid { display: grid; grid-template-columns: repeat(3, 1fr) 1.3fr; gap: 32px; padding: 48px 0; }
+  .site-footer h3 { font-size: .76rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+  .site-footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .site-footer ul a, .site-footer__contact a:not(.link-arrow) { color: #c9cde6; text-decoration: none; position: relative; transition: color .2s; }
+  .site-footer ul a:hover, .site-footer__contact a:hover { color: #fff; }
+  .site-footer ul a::after { content: ''; position: absolute; left: 0; right: 0; bottom: -2px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform .35s var(--ease); }
+  .site-footer ul a:hover::after { transform: scaleX(1); transform-origin: left; }
+  .site-footer__contact { display: grid; gap: 12px; align-content: start; font-size: .94rem; }
+  .site-footer__contact p { display: flex; gap: 10px; align-items: flex-start; }
+  .site-footer__contact p :global(svg) { flex: none; margin-top: 3px; color: var(--gold); }
+  .site-footer__contact .link-arrow { color: #fff; margin-top: 4px; }
+  .site-footer__bottom { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 24px; border-top: 1px solid rgb(255 255 255 / .1); font-size: .84rem; }
+  .site-footer__floreat { font-family: var(--font-display); font-style: italic; color: var(--gold); }
+  @media (max-width: 960px) { .site-footer__top { grid-template-columns: 1fr; } .site-footer__grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .site-footer__brand { flex-direction: column; align-items: flex-start; } .site-footer__brand img { height: 96px; } }
+</style>

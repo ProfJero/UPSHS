@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import EmptyState from '../components/EmptyState.astro';
+import Icon from '../components/Icon.astro';
+import { getContent, fmtDate } from '../lib/content';
+const { announcements } = await getContent();
+const crumbs = [{ name: 'Notice board', href: '/announcements/' }];
+const label = { urgent: 'Urgent', important: 'Important', normal: 'Notice' } as const;
+---
+<BaseLayout title="Notice Board — Announcements" description="Official announcements and notices from University Practice Senior High School, Cape Coast, for students, parents and guardians." breadcrumbs={crumbs} hideAnnouncements>
+  <PageHero eyebrow="Notice board" title="Official announcements." lead="Time-sensitive notices from the school administration. Notices are removed automatically when they expire." crumbs={crumbs} compact />
+  <section class="section">
+    <div class="container container--narrow">
+      {announcements.length ? (
+        <ol class="notices">
+          {announcements.map((a, i) => (
+            <li class:list={['n', a.priority || 'normal']} data-reveal style={`--i:${i % 5}`} id={a.id}>
+              <div class="n__side">
+                <span class="n__icon"><Icon name={a.priority === 'urgent' ? 'alert' : a.priority === 'important' ? 'bell' : 'megaphone'} size={20} /></span>
+              </div>
+              <div class="n__body">
+                <div class="n__meta">
+                  <span class="n__badge">{label[a.priority || 'normal']}</span>
+                  <time datetime={a.publishedAt || undefined}>{fmtDate(a.publishedAt)}</time>
+                  {a.expiresAt && <span class="muted">· Until {fmtDate(a.expiresAt, { day: 'numeric', month: 'short' })}</span>}
+                </div>
+                <h2>{a.title}</h2>
+                <p>{a.body}</p>
+                {a.linkUrl && <a class="link-arrow" href={a.linkUrl} target={a.linkUrl.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{a.linkLabel || 'More information'} <Icon name="arrow-up-right" size={16} /></a>}
+              </div>
+            </li>
+          ))}
+        </ol>
+      ) : <EmptyState icon="megaphone" title="No active notices" text="There are no announcements at the moment. Check back soon or subscribe to school updates below." />}
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .notices { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .n { --tone: var(--brand-ink); display: grid; grid-template-columns: auto 1fr; gap: 18px; padding: 24px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--tone); scroll-margin-top: calc(var(--header-h) + 20px); }
+  .n.important { --tone: color-mix(in oklab, var(--gold) 80%, black); }
+  .n.urgent { --tone: var(--flame); }
+  .n__icon { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; color: var(--tone); background: color-mix(in oklab, var(--tone) 12%, var(--bg-elev)); }
+  .n.urgent .n__icon { animation: pulse 2s var(--ease) infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 8px color-mix(in oklab, var(--flame) 0%, transparent), 0 0 0 0 color-mix(in oklab, var(--flame) 30%, transparent); } 0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--flame) 35%, transparent); } }
+  .n__body { display: grid; gap: 8px; justify-items: start; }
+  .n__meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: .84rem; color: var(--muted); font-weight: 600; }
+  .n__badge { padding: 2px 10px; border-radius: 99px; font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--tone); background: color-mix(in oklab, var(--tone) 12%, var(--bg-elev)); }
+  .n h2 { font-size: 1.2rem; font-weight: 700; }
+  .n p { color: var(--text-2); white-space: pre-line; }
+</style>

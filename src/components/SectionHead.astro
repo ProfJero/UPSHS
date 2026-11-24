@@ -1,0 +1,12 @@
+---
+interface Props { eyebrow?: string; title: string; lead?: string; center?: boolean }
+const { eyebrow, title, lead, center = false } = Astro.props;
+---
+<div class:list={['section-head', { 'section-head--center': center }]}>
+  <div class="section-head__copy">
+    {eyebrow && <p class="eyebrow" data-reveal>{eyebrow}</p>}
+    <h2 class="display h2" data-reveal style="--i:1" set:html={title} />
+    {lead && <p class="lead" data-reveal style="--i:2">{lead}</p>}
+  </div>
+  <slot />
+</div>

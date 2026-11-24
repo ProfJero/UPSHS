@@ -1,0 +1,87 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import NewsCard from '../components/NewsCard.astro';
+import EventCard from '../components/EventCard.astro';
+import { getContent, isUpcoming } from '../lib/content';
+import { PROGRAMMES } from '../data/school';
+const { news, events } = await getContent();
+const alumniNews = news.filter((n) => n.category === 'Alumni').slice(0, 3);
+const reunions = events.filter((e) => e.category === 'Alumni' && isUpcoming(e)).slice(0, 3);
+const thisYear = new Date().getFullYear();
+const crumbs = [{ name: 'Alumni', href: '/alumni/' }];
+---
+<BaseLayout title="Alumni — Once a UNIPRAN, Always a UNIPRAN" description="Old students of University Practice SHS, Cape Coast: join the alumni register, find reunions and alumni news, and support the school." breadcrumbs={crumbs}>
+  <PageHero eyebrow="Old students" title="Once a UNIPRAN, always a UNIPRAN." lead="Wherever life has taken you since Cape Coast, there’s a place for you in the UNIPRA family." crumbs={crumbs}>
+    <div><a class="btn btn--accent" href="#join">Join the alumni register <Icon name="arrow-right" size={18} /></a></div>
+  </PageHero>
+
+  <section class="section">
+    <div class="container ways" data-stagger>
+      <article class="way" data-reveal><span><Icon name="users" size={26} /></span><h2 class="display">Reconnect</h2><p>Find your year group, hear about reunions and keep up with classmates.</p></article>
+      <article class="way" data-reveal><span><Icon name="compass" size={26} /></span><h2 class="display">Mentor</h2><p>Share your career journey with current students through talks and mentoring.</p></article>
+      <article class="way" data-reveal><span><Icon name="heart" size={26} /></span><h2 class="display">Give back</h2><p>Support approved projects that improve facilities and opportunities for students.</p></article>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="join">
+    <div class="container join">
+      <div class="join__copy">
+        <p class="eyebrow" data-reveal>Alumni register</p>
+        <h2 class="display h2" data-reveal style="--i:1">Add your name to <em>the register</em>.</h2>
+        <p class="lead" data-reveal style="--i:2">The school uses the register to share reunion news, alumni events and ways to support current students. Your details are only seen by authorised school staff.</p>
+        <ul class="join__list" data-reveal style="--i:3">
+          <li><Icon name="check" size={18} /> Reunion and homecoming announcements</li>
+          <li><Icon name="check" size={18} /> Invitations to speech day and school events</li>
+          <li><Icon name="check" size={18} /> Mentoring and giving-back opportunities</li>
+        </ul>
+      </div>
+      <form class="form-card" data-api-form="/v1/public/alumni" novalidate data-reveal="right">
+        <div class="form-grid">
+          <div class="field full"><label for="a-name">Full name *</label><input class="input" id="a-name" name="fullName" required minlength="2" autocomplete="name" /></div>
+          <div class="field"><label for="a-email">Email *</label><input class="input" id="a-email" name="email" type="email" required autocomplete="email" /></div>
+          <div class="field"><label for="a-phone">Phone / WhatsApp</label><input class="input" id="a-phone" name="phone" type="tel" autocomplete="tel" /></div>
+          <div class="field"><label for="a-year">Year you completed *</label><input class="input" id="a-year" name="yearCompleted" type="number" min="1976" max={thisYear + 1} required inputmode="numeric" placeholder="e.g. 2005" /></div>
+          <div class="field"><label for="a-prog">Programme</label>
+            <select class="select" id="a-prog" name="programme"><option value="">Select…</option>{PROGRAMMES.map((p) => <option>{p.title}</option>)}<option>Other</option></select>
+          </div>
+          <div class="field"><label for="a-house">House</label><input class="input" id="a-house" name="house" /></div>
+          <div class="field"><label for="a-job">Occupation</label><input class="input" id="a-job" name="occupation" autocomplete="organization-title" /></div>
+          <div class="field full"><label for="a-loc">City & country</label><input class="input" id="a-loc" name="location" placeholder="e.g. Accra, Ghana" /></div>
+          <label class="check full"><input type="checkbox" name="consent" required /> <span>I agree that University Practice SHS may store these details to contact me about alumni matters. See the <a href="/privacy/">privacy notice</a>.</span></label>
+          <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <button class="btn full" type="submit">Join the register <Icon name="arrow-right" size={18} /></button>
+          <p class="form-status full" role="status" data-status data-success="Welcome back, UNIPRAN! You have been added to the alumni register."></p>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  {(reunions.length > 0 || alumniNews.length > 0) && (
+    <section class="section">
+      <div class="container">
+        {reunions.length > 0 && (<><h2 class="display h2" style="margin-bottom:24px">Reunions & alumni events</h2><div class="grid grid-3" style="margin-bottom:56px">{reunions.map((e, i) => <EventCard event={e} i={i} />)}</div></>)}
+        {alumniNews.length > 0 && (<><h2 class="display h2" style="margin-bottom:24px">Alumni news</h2><div class="grid grid-3">{alumniNews.map((p, i) => <NewsCard post={p} i={i} />)}</div></>)}
+      </div>
+    </section>
+  )}
+</BaseLayout>
+<style>
+  .ways { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .way { padding: 32px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); display: grid; gap: 10px; transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
+  .way:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+  .way span { width: 56px; height: 56px; border-radius: 18px; display: grid; place-items: center; background: var(--accent-tint); color: color-mix(in oklab, var(--accent) 45%, var(--text)); margin-bottom: 6px; }
+  .way h2 { font-size: 1.6rem; }
+  .way p { color: var(--muted); }
+  @media (max-width: 800px) { .ways { grid-template-columns: 1fr; } }
+  .join { display: grid; grid-template-columns: .9fr 1.1fr; gap: clamp(28px, 5vw, 64px); align-items: start; }
+  .join__copy { display: grid; gap: 18px; position: sticky; top: calc(var(--header-h) + 24px); }
+  .join__list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .join__list li { display: flex; gap: 10px; align-items: center; font-weight: 600; }
+  .join__list :global(svg) { color: var(--emerald); }
+  @media (max-width: 900px) { .join { grid-template-columns: 1fr; } .join__copy { position: static; } }
+</style>
+<style is:global>
+  .form-card { padding: clamp(22px, 3vw, 36px); border-radius: var(--radius-xl); background: var(--bg-elev); border: 1px solid var(--line); box-shadow: var(--shadow-lg); }
+</style>
