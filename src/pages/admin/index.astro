@@ -1,8 +1,35 @@
 ---
-import SiteLayout from '../../layouts/SiteLayout.astro';
-import AdminApp from '../../components/AdminApp';
+import '../../styles/global.css';
+import '../../admin/admin.css';
+import AdminApp from '../../admin/AdminApp';
 ---
-<SiteLayout title="Staff Portal | University Practice SHS" description="Secure content management portal for authorised University Practice Senior High School website administrators." noIndex={true}>
-  <section class="admin-page"><div class="container admin-intro"><span class="eyebrow"><span></span> Official website management</span><h1>UNIPRA Staff Portal</h1><p>Secure access for authorised school administrators and communications personnel.</p><AdminApp client:load/></div></section>
-</SiteLayout>
-<style>.admin-intro{padding:48px 0 1px}.admin-intro>h1{font:800 clamp(2rem,4vw,3rem) Manrope;letter-spacing:-.06em;color:var(--navy);margin:14px 0 6px}.admin-intro>p{color:var(--muted);font-size:.9rem;margin:0}</style>
+<!doctype html>
+<html lang="en-GH" data-theme="light" data-accent="royal">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Staff Portal | UPSHS</title>
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" />
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        function apply() {
+          var mode = 'system', accent = 'royal';
+          try { mode = localStorage.getItem('upshs-mode') || 'system'; accent = localStorage.getItem('upshs-accent') || 'royal'; } catch (e) {}
+          d.dataset.theme = mode === 'dark' || (mode === 'system' && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+          d.dataset.accent = accent;
+        }
+        apply();
+        window.__upshsApplyTheme = apply;
+      })();
+    </script>
+  </head>
+  <body class="admin-body">
+    <AdminApp client:only="react" />
+    <noscript>The staff portal needs JavaScript.</noscript>
+  </body>
+</html>

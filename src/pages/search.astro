@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+---
+<BaseLayout title="Search" description="Search the University Practice SHS website: news, events, notices, documents and pages." noindex>
+  <PageHero eyebrow="Search" title="Find what you need." compact>
+    <form class="search-form" action="/search/" method="get" role="search" data-search-form>
+      <Icon name="search" size={22} />
+      <input type="search" name="q" placeholder="Try “calendar”, “PTA”, “prospectus”…" aria-label="Search" data-search-input autocomplete="off" />
+      <button class="btn btn--accent btn--sm" type="submit">Search</button>
+    </form>
+  </PageHero>
+  <section class="section section--tight">
+    <div class="container container--narrow">
+      <p class="muted" data-search-summary></p>
+      <ul class="results" data-search-results></ul>
+    </div>
+  </section>
+</BaseLayout>
+<script>
+  import { searchItems, highlight } from '../scripts/site';
+  import { iconSvg } from '../lib/icons';
+  document.addEventListener('astro:page-load', async () => {
+    const input = document.querySelector<HTMLInputElement>('[data-search-input]');
+    const list = document.querySelector('[data-search-results]');
+    const summary = document.querySelector('[data-search-summary]');
+    if (!input || !list || !summary) return;
+    const index = await fetch('/search-index.json').then((r) => r.json()).catch(() => []);
+    const run = () => {
+      const q = input.value.trim();
+      const res = searchItems(index, q, 100);
+      summary.textContent = q ? `${res.length} result${res.length === 1 ? '' : 's'} for “${q}”` : 'Type to search the website.';
+      list.innerHTML = res.map((r) => `<li><a href="${r.u}"><span class="results__g">${iconSvg('arrow-right', 14)} ${r.g}</span><strong>${highlight(r.t, q)}</strong><span>${highlight(r.d, q)}</span></a></li>`).join('');
+    };
+    input.value = new URLSearchParams(location.search).get('q') || '';
+    run();
+    input.addEventListener('input', () => { history.replaceState(null, '', input.value ? `?q=${encodeURIComponent(input.value)}` : location.pathname); run(); });
+    input.focus();
+  });
+</script>
+<style>
+  .search-form { display: flex; align-items: center; gap: 12px; max-width: 680px; margin-top: 10px; padding: 8px 8px 8px 20px; border-radius: 999px; background: rgb(255 255 255 / .1); border: 1px solid rgb(255 255 255 / .2); color: #fff; }
+  .search-form input { flex: 1; min-width: 0; height: 46px; border: 0; background: none; color: #fff; font-size: 1.05rem; outline: none; }
+  .search-form input::placeholder { color: rgb(255 255 255 / .55); }
+  .results { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 10px; }
+  .results :global(a) { display: grid; gap: 4px; padding: 18px 20px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); text-decoration: none; transition: border-color .2s, transform .3s var(--ease); }
+  .results :global(a:hover) { border-color: var(--brand-ink); transform: translateX(4px); }
+  .results :global(.results__g) { display: inline-flex; gap: 6px; align-items: center; font-size: .74rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--brand-ink); }
+  .results :global(strong) { font-size: 1.08rem; }
+  .results :global(span:last-child) { color: var(--muted); font-size: .92rem; }
+  .results :global(mark) { background: var(--accent-tint); color: inherit; border-radius: 3px; }
+</style>

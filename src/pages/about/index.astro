@@ -1,0 +1,150 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import Icon from '../../components/Icon.astro';
+import Crest from '../../components/Crest.astro';
+import { HISTORY, CREST, PILLARS, FOUNDED_YEAR } from '../../data/school';
+import { school } from '../../lib/content';
+const s = await school();
+const crumbs = [{ name: 'About', href: '/about/' }];
+---
+<BaseLayout title="About UNIPRA — Our Story, Crest and Values" description={`The story of University Practice Senior High School, Cape Coast: founded in ${FOUNDED_YEAR} as the University of Cape Coast's practice school. Our history, motto, crest and values.`} breadcrumbs={crumbs}>
+  <PageHero eyebrow="About the school" title="A story shaped by education and service." lead="How a practice school for student teachers at the University of Cape Coast grew into one of Cape Coast’s much-loved senior high schools." crumbs={crumbs} />
+
+  <section class="section">
+    <div class="container split">
+      <div class="about-intro">
+        <p class="eyebrow" data-reveal>Our beginnings</p>
+        <h2 class="display h2" data-reveal style="--i:1">Where teachers learned to teach — and students learned to <em>serve</em>.</h2>
+        <div class="prose" data-reveal style="--i:2">
+          <p>University Practice Senior High School was conceived by the then Faculty of Education of the University of Cape Coast as a <strong>practice school</strong>: a place where student teachers could gain real classroom experience.</p>
+          <p>The Ghana Education Service embraced the idea. The University provided the buildings and equipment; the Service provided teaching and non-teaching staff. The school was formally opened on <strong>13 October 1976</strong> with 112 students in the sixth-form programme, studying General Arts and Science.</p>
+          <p>That union of learning and practice is still at the heart of who we are. Today the school is known affectionately as <strong>UNIPRA</strong>, and its students and old students as UNIPRANs.</p>
+        </div>
+      </div>
+      <div class="mission" data-reveal="right">
+        <div class="mission__card">
+          <span class="mission__icon"><Icon name="compass" size={24} /></span>
+          <h3 class="display">Our mission</h3>
+          <p>To provide a holistic, quality senior high school education that develops the intellect, character and talents of every student, in partnership with the University of Cape Coast and our community.</p>
+        </div>
+        <div class="mission__card mission__card--accent">
+          <span class="mission__icon"><Icon name="sparkles" size={24} /></span>
+          <h3 class="display">Our vision</h3>
+          <p>To raise disciplined, confident and responsible young people who use their knowledge in service to the community — in Ghana and beyond.</p>
+        </div>
+        <div class="mission__motto"><span>Motto</span><strong class="display">“{s.motto}”</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <SectionHead eyebrow="Timeline" title="Our journey since <em>1976</em>." center />
+      <ol class="timeline">
+        {HISTORY.map((h, i) => (
+          <li class="timeline__item" data-reveal={i % 2 ? 'right' : 'left'}>
+            <span class="timeline__dot" aria-hidden="true"></span>
+            <div class="timeline__card">
+              <span class="timeline__year display">{h.year}</span>
+              <h3>{h.title}</h3>
+              <p>{h.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container crest-section">
+      <div class="crest-section__visual" data-reveal="scale">
+        <div class="crest-section__halo" aria-hidden="true"></div>
+        <Crest variant="floreat" size={420} />
+        <p class="crest-section__alt">Also used: <Crest variant="coastal" size={44} /> the Cape Coast blue edition</p>
+      </div>
+      <div>
+        <SectionHead eyebrow="Our crest" title="Every symbol tells <em>our story</em>." lead="The UPSHS crest brings together faith, knowledge and our home by the sea." />
+        <div class="symbols" data-stagger>
+          {CREST.map((c) => (
+            <div class="symbol" data-reveal>
+              <span class="symbol__icon"><Icon name={c.icon} size={20} /></span>
+              <div><h3>{c.title}</h3><p>{c.text}</p></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--inverse">
+    <div class="container">
+      <SectionHead eyebrow="Core values" title="What every UNIPRAN <em class='gold-text'>carries</em>." center />
+      <div class="grid grid-3" data-stagger>
+        {PILLARS.map((p) => (
+          <div class="value" data-reveal>
+            <Icon name={p.icon} size={30} />
+            <h3 class="display">{p.title}</h3>
+            <p>{p.text}</p>
+          </div>
+        ))}
+      </div>
+      <div class="about-links" data-reveal>
+        <a class="btn btn--accent" href="/about/leadership/">Meet our leadership <Icon name="arrow-right" size={18} /></a>
+        <a class="btn btn--glass" href="/about/achievements/">See our achievements</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .about-intro { display: grid; gap: 20px; }
+  .mission { display: grid; gap: 16px; }
+  .mission__card { padding: 30px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); display: grid; gap: 10px; transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
+  .mission__card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+  .mission__card h3 { font-size: 1.6rem; }
+  .mission__card p { color: var(--muted); }
+  .mission__card--accent { background: var(--brand); color: #fff; border: 0; }
+  .mission__card--accent p { color: rgb(255 255 255 / .8); }
+  .mission__card--accent .mission__icon { background: rgb(255 255 255 / .15); color: var(--gold-soft); }
+  .mission__icon { width: 50px; height: 50px; border-radius: 15px; display: grid; place-items: center; background: var(--brand-tint); color: var(--brand-ink); }
+  .mission__motto { display: flex; align-items: baseline; gap: 14px; padding: 20px 26px; border-radius: var(--radius-lg); background: var(--accent-tint); flex-wrap: wrap; }
+  .mission__motto span { font-size: .74rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .mission__motto strong { font-size: 1.5rem; font-style: italic; }
+
+  .timeline { list-style: none; margin: 0 auto; padding: 0; max-width: 980px; position: relative; display: grid; gap: 28px; }
+  .timeline::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: linear-gradient(var(--accent), var(--brand), transparent); transform: translateX(-50%); }
+  .timeline__item { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; }
+  .timeline__item:nth-child(even) .timeline__card { grid-column: 2; }
+  .timeline__dot { position: absolute; left: 50%; top: 32px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 4px solid var(--surface-2); box-shadow: 0 0 0 2px var(--accent); transform: translateX(-50%); }
+  .timeline__card { padding: 26px 28px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); display: grid; gap: 8px; }
+  .timeline__year { font-size: 1.9rem; color: var(--brand-ink); line-height: 1; }
+  .timeline__card h3 { font-size: 1.1rem; font-weight: 700; }
+  .timeline__card p { color: var(--muted); }
+  @media (max-width: 760px) {
+    .timeline::before { left: 9px; }
+    .timeline__item { grid-template-columns: 1fr; padding-left: 36px; }
+    .timeline__item:nth-child(even) .timeline__card { grid-column: 1; }
+    .timeline__dot { left: 9px; }
+  }
+
+  .crest-section { display: grid; grid-template-columns: .9fr 1.1fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
+  .crest-section__visual { position: relative; display: grid; justify-items: center; gap: 20px; }
+  .crest-section__visual > :global(img) { width: min(340px, 80%); height: auto; position: relative; filter: drop-shadow(0 30px 40px rgb(0 0 0 / .2)); }
+  .crest-section__halo { position: absolute; inset: 5% 0 15%; border-radius: 50%; background: radial-gradient(closest-side, var(--accent-tint), transparent); animation: float 9s var(--ease-in-out) infinite; }
+  .crest-section__alt { position: relative; display: flex; align-items: center; gap: 10px; font-size: .86rem; color: var(--muted); }
+  .crest-section__alt :global(img) { height: 44px; width: auto; }
+  .symbols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .symbol { display: flex; gap: 14px; padding: 18px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); transition: border-color .3s, transform .4s var(--ease); }
+  .symbol:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .symbol__icon { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-tint); color: color-mix(in oklab, var(--accent) 45%, var(--text)); }
+  .symbol h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+  .symbol p { font-size: .9rem; color: var(--muted); }
+  @media (max-width: 960px) { .crest-section { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { .symbols { grid-template-columns: 1fr; } }
+
+  .value { padding: 32px; border-radius: var(--radius-lg); background: rgb(255 255 255 / .04); border: 1px solid rgb(255 255 255 / .1); display: grid; gap: 12px; color: var(--gold); }
+  .value h3 { color: #fff; font-size: 1.7rem; }
+  .value p { color: #b4bad9; }
+  .about-links { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 48px; }
+</style>

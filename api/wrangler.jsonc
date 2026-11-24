@@ -1,0 +1,22 @@
+// UPSHS API Worker — served at https://upshs.profjero947.workers.dev
+// Secrets (set with `npx wrangler secret put NAME`):
+//   FIREBASE_SERVICE_ACCOUNT  – full JSON of a Firebase service-account key
+//   CLOUDINARY_API_SECRET     – Cloudinary API secret (for signed uploads)
+//   TURNSTILE_SECRET_KEY      – optional, Cloudflare Turnstile secret for public forms
+//   REBUILD_HOOK_URL          – optional, Cloudflare Pages deploy-hook URL
+{
+  "name": "upshs",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "observability": { "enabled": true },
+  "vars": {
+    "FIREBASE_PROJECT_ID": "",
+    "CLOUDINARY_CLOUD_NAME": "",
+    "CLOUDINARY_API_KEY": "",
+    "CLOUDINARY_FOLDER": "upshs",
+    "ALLOWED_ORIGINS": "https://upshs.pages.dev,http://localhost:4321",
+    "SUPER_ADMIN_EMAILS": ""
+  }
+}

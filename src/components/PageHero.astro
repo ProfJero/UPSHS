@@ -1,5 +1,44 @@
 ---
-interface Props { eyebrow: string; title: string; description: string; image?: string; }
-const { eyebrow, title, description, image } = Astro.props;
+import Waves from './Waves.astro';
+interface Crumb { name: string; href: string }
+interface Props { eyebrow?: string; title: string; lead?: string; crumbs?: Crumb[]; compact?: boolean }
+const { eyebrow, title, lead, crumbs = [], compact = false } = Astro.props;
 ---
-<section class="page-hero" style={image ? `--hero-image:url('${image}')` : undefined}><div class="container page-hero__inner"><div class="eyebrow"><span></span>{eyebrow}</div><h1>{title}</h1><p>{description}</p><div class="breadcrumbs"><a href="/">Home</a><span>/</span><span>{eyebrow}</span></div></div></section>
+<section class:list={['page-hero', { 'page-hero--compact': compact }]}>
+  <div class="page-hero__bg" aria-hidden="true">
+    <span class="page-hero__orb page-hero__orb--a"></span>
+    <span class="page-hero__orb page-hero__orb--b"></span>
+    <img class="page-hero__crest" src="/images/brand/crest.webp" alt="" width="341" height="392" />
+  </div>
+  <div class="container page-hero__inner">
+    {crumbs.length > 0 && (
+      <nav aria-label="Breadcrumb" class="page-hero__crumbs">
+        <ol class="crumbs">
+          <li><a href="/">Home</a></li>
+          {crumbs.map((c, i) => <li>{i === crumbs.length - 1 ? <span aria-current="page">{c.name}</span> : <a href={c.href}>{c.name}</a>}</li>)}
+        </ol>
+      </nav>
+    )}
+    {eyebrow && <p class="eyebrow page-hero__eyebrow">{eyebrow}</p>}
+    <h1 class="display h1 page-hero__title">{title}</h1>
+    {lead && <p class="lead page-hero__lead">{lead}</p>}
+    <slot />
+  </div>
+  <Waves />
+</section>
+
+<style>
+  .page-hero { position: relative; overflow: hidden; background: var(--inverse-bg); color: #fff; padding: clamp(56px, 8vw, 104px) 0 clamp(96px, 11vw, 150px); isolation: isolate; }
+  .page-hero--compact { padding-bottom: clamp(80px, 9vw, 120px); }
+  .page-hero__bg { position: absolute; inset: 0; z-index: -1; }
+  .page-hero__orb { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; animation: float 14s var(--ease-in-out) infinite; }
+  .page-hero__orb--a { width: 520px; height: 520px; left: -140px; top: -220px; background: var(--brand); }
+  .page-hero__orb--b { width: 420px; height: 420px; right: -80px; bottom: -160px; background: color-mix(in oklab, var(--accent) 70%, var(--brand)); opacity: .35; animation-delay: -6s; }
+  .page-hero__crest { position: absolute; right: max(4vw, calc((100vw - var(--container)) / 2)); top: 50%; height: 120%; width: auto; transform: translateY(-50%) rotate(8deg); opacity: .07; filter: grayscale(1) brightness(3); }
+  .page-hero__inner { position: relative; display: grid; gap: 18px; max-width: calc(var(--container)); }
+  .page-hero__crumbs { animation: rise .7s var(--ease) both; }
+  .page-hero__eyebrow { color: var(--gold); animation: rise .7s .05s var(--ease) both; }
+  .page-hero__title { max-width: 16ch; animation: rise .9s .1s var(--ease) both; }
+  .page-hero__lead { max-width: 640px; color: #c9cde6; animation: rise .9s .2s var(--ease) both; }
+  @media (max-width: 760px) { .page-hero__crest { opacity: .05; right: -30%; } }
+</style>

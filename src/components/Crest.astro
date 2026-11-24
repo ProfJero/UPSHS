@@ -1,0 +1,23 @@
+---
+// The official crest. The default (royal) crest swaps to the blue Cape Coast edition
+// automatically when a visitor chooses the "Coastal" colour theme.
+interface Props { size?: number; variant?: 'royal' | 'coastal' | 'floreat'; class?: string; eager?: boolean }
+const { size = 48, variant = 'royal', class: className, eager = false } = Astro.props;
+const alt = 'University Practice Senior High School crest';
+const loading = eager ? 'eager' : 'lazy';
+const royal = { src: '/images/brand/crest.webp', w: Math.round((size * 341) / 392) };
+const coastal = { src: '/images/brand/crest-coastal-mark.webp', w: Math.round((size * 379) / 362) };
+---
+{variant === 'floreat' && <img src="/images/brand/crest-floreat.png" width={Math.round((size * 341) / 431)} height={size} alt={alt} class={className} loading={loading} decoding="async" />}
+{variant === 'coastal' && <img src={coastal.src} width={coastal.w} height={size} alt={alt} class={className} loading={loading} decoding="async" />}
+{variant === 'royal' && (
+  <>
+    <img src={royal.src} width={royal.w} height={size} alt={alt} class:list={[className, 'crest--royal']} loading={loading} decoding="async" fetchpriority={eager ? 'high' : undefined} />
+    <img src={coastal.src} width={coastal.w} height={size} alt="" aria-hidden="true" class:list={[className, 'crest--coastal']} loading="lazy" decoding="async" />
+  </>
+)}
+<style is:global>
+  .crest--coastal { display: none !important; }
+  [data-accent='coastal'] .crest--coastal { display: block !important; }
+  [data-accent='coastal'] .crest--royal { display: none !important; }
+</style>

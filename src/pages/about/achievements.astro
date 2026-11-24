@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import Icon from '../../components/Icon.astro';
+import Media from '../../components/Media.astro';
+import { getContent } from '../../lib/content';
+const { achievements } = await getContent();
+const categories = [...new Set(achievements.map((a) => a.category).filter(Boolean))] as string[];
+const crumbs = [{ name: 'About', href: '/about/' }, { name: 'Achievements', href: '/about/achievements/' }];
+---
+<BaseLayout title="Achievements & Honours" description="Awards, competition results and honours won by students and staff of University Practice Senior High School, Cape Coast." breadcrumbs={crumbs}>
+  <PageHero eyebrow="Achievements" title="Celebrating UNIPRA excellence." lead="In the classroom, on the field, on stage and in the community — the honours our students and staff have earned." crumbs={crumbs} />
+  <section class="section">
+    <div class="container">
+      {achievements.length ? (
+        <>
+          {categories.length > 1 && (
+            <div class="filters" data-filter-group="#ach-list" role="group" aria-label="Filter achievements">
+              <button type="button" data-filter="all" aria-pressed="true">All</button>
+              {categories.map((c) => <button type="button" data-filter={c} aria-pressed="false">{c}</button>)}
+            </div>
+          )}
+          <div class="ach-list" id="ach-list">
+            {achievements.map((a, i) => (
+              <article class="ach" data-reveal style={`--i:${i % 6}`} data-filter-item data-category={a.category || ''}>
+                {a.image?.url ? <div class="ach__img"><Media media={a.image} alt={a.title} w={480} ratio={1} /></div> : <span class="ach__icon"><Icon name="trophy" size={28} /></span>}
+                <div class="ach__body">
+                  <div class="ach__meta">{a.year && <span class="chip chip--accent">{a.year}</span>}{a.category && <span class="chip chip--outline">{a.category}</span>}</div>
+                  <h2>{a.title}</h2>
+                  {a.description && <p>{a.description}</p>}
+                </div>
+              </article>
+            ))}
+          </div>
+        </>
+      ) : <EmptyState icon="trophy" title="Our honours roll is being compiled" text="Awards, competition results and recognitions will be published here by the school." />}
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .ach-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; }
+  .ach { display: flex; gap: 18px; padding: 22px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
+  .ach:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+  .ach__icon { flex: none; width: 64px; height: 64px; border-radius: 20px; display: grid; place-items: center; background: var(--accent-tint); color: color-mix(in oklab, var(--accent) 50%, var(--text)); }
+  .ach__img { position: relative; flex: none; width: 88px; height: 88px; border-radius: 18px; overflow: hidden; }
+  .ach__img :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .ach__body { display: grid; gap: 8px; align-content: start; }
+  .ach__meta { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ach h2 { font-size: 1.12rem; font-weight: 700; line-height: 1.3; }
+  .ach p { color: var(--muted); font-size: .92rem; }
+  @media (max-width: 420px) { .ach-list { grid-template-columns: 1fr; } .ach { flex-direction: column; } }
+</style>

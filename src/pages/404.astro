@@ -1,7 +1,31 @@
 ---
-import SiteLayout from '../layouts/SiteLayout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import Crest from '../components/Crest.astro';
+import { QUICK_LINKS } from '../data/school';
 ---
-<SiteLayout title="Page not found | University Practice SHS" description="The page you requested could not be found." noIndex={true}>
-  <section class="section"><div class="container empty-state"><span class="eyebrow"><span></span> Error 404</span><h1>We couldn't find that page.</h1><p>The address may have changed or the page may no longer be available.</p><a class="button button--primary" href="/">Return to the homepage <span>↗</span></a></div></section>
-</SiteLayout>
-<style>.empty-state h1{font:800 clamp(2rem,4vw,3.2rem) Manrope;color:var(--navy);letter-spacing:-.05em}</style>
+<BaseLayout title="Page not found" description="The page you were looking for could not be found." noindex>
+  <section class="nf">
+    <div class="container nf__inner">
+      <div class="nf__art" aria-hidden="true"><span class="display">4</span><Crest size={170} /><span class="display">4</span></div>
+      <h1 class="display h2">This page has wandered off campus.</h1>
+      <p class="lead">It may have moved or no longer exists. Try searching, or head to one of these:</p>
+      <div class="nf__actions">
+        <a class="btn" href="/">Back to home <Icon name="home" size={18} /></a>
+        <button class="btn btn--ghost" type="button" data-cmdk-open><Icon name="search" size={18} /> Search the site</button>
+      </div>
+      <ul class="nf__links">{QUICK_LINKS.map((q) => <li><a href={q.href}><Icon name={q.icon} size={16} /> {q.label}</a></li>)}</ul>
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .nf { padding: clamp(64px, 10vw, 140px) 0; text-align: center; }
+  .nf__inner { display: grid; justify-items: center; gap: 20px; }
+  .nf__art { display: flex; align-items: center; gap: 12px; }
+  .nf__art span { font-size: clamp(6rem, 16vw, 11rem); line-height: 1; color: var(--brand-ink); }
+  .nf__art :global(img) { height: clamp(110px, 18vw, 170px); width: auto; animation: float 5s var(--ease-in-out) infinite; }
+  .nf__actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .nf__links { list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .nf__links a { display: inline-flex; gap: 8px; align-items: center; padding: 8px 14px; border-radius: 99px; border: 1px solid var(--line-strong); text-decoration: none; font-weight: 600; font-size: .88rem; transition: background .2s; }
+  .nf__links a:hover { background: var(--surface-2); }
+</style>

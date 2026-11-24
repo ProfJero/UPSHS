@@ -1,0 +1,78 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import { school } from '../lib/content';
+const s = await school();
+const crumbs = [{ name: 'Contact', href: '/contact/' }];
+const mapQuery = encodeURIComponent('University Practice Senior High School, Cape Coast, Ghana');
+const wa = s.whatsapp ? `https://wa.me/${s.whatsapp.replace(/[^\d]/g, '')}` : '';
+const ld = [{ '@context': 'https://schema.org', '@type': 'ContactPage', name: 'Contact University Practice SHS', url: 'https://upshs.pages.dev/contact/', about: { '@id': 'https://upshs.pages.dev/#school' } }];
+---
+<BaseLayout title="Contact Us — Phone, Email & Directions" description="Contact University Practice Senior High School, Cape Coast. Send an enquiry, find our phone and email, office hours and directions on the map." breadcrumbs={crumbs} jsonLd={ld}>
+  <PageHero eyebrow="Contact" title="We’d love to hear from you." lead="Questions from parents, old students, partners or the community — send us a message and the administration will respond." crumbs={crumbs} compact />
+  <section class="section">
+    <div class="container contact">
+      <div class="contact__info">
+        <div class="cinfo" data-reveal>
+          <span class="cinfo__icon"><Icon name="map-pin" size={22} /></span>
+          <div><h2>Visit</h2><p>{s.address || 'University of Cape Coast, Cape Coast, Central Region, Ghana'}</p><a class="link-arrow" href={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`} target="_blank" rel="noopener noreferrer">Open in Google Maps <Icon name="arrow-up-right" size={15} /></a></div>
+        </div>
+        <div class="cinfo" data-reveal style="--i:1">
+          <span class="cinfo__icon"><Icon name="phone" size={22} /></span>
+          <div><h2>Call</h2>{s.phone ? <a href={`tel:${s.phone.replace(/\s/g, '')}`}>{s.phone}</a> : <p class="muted">Phone number coming soon.</p>}{wa && <a class="link-arrow" href={wa} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" size={16} /> Chat on WhatsApp</a>}</div>
+        </div>
+        <div class="cinfo" data-reveal style="--i:2">
+          <span class="cinfo__icon"><Icon name="mail" size={22} /></span>
+          <div><h2>Email</h2>{s.email ? <a href={`mailto:${s.email}`}>{s.email}</a> : <p class="muted">Use the form — messages go straight to the office.</p>}</div>
+        </div>
+        <div class="cinfo" data-reveal style="--i:3">
+          <span class="cinfo__icon"><Icon name="clock" size={22} /></span>
+          <div><h2>Office hours</h2><p>{s.officeHours || 'Monday – Friday, during school hours'}</p></div>
+        </div>
+      </div>
+      <form class="form-card" data-api-form="/v1/public/contact" novalidate data-reveal="right">
+        <h2 class="display form-card__title">Send an enquiry</h2>
+        <div class="form-grid">
+          <div class="field"><label for="c-name">Your name *</label><input class="input" id="c-name" name="name" required minlength="2" autocomplete="name" /></div>
+          <div class="field"><label for="c-email">Email *</label><input class="input" id="c-email" name="email" type="email" required autocomplete="email" /></div>
+          <div class="field"><label for="c-phone">Phone</label><input class="input" id="c-phone" name="phone" type="tel" autocomplete="tel" /></div>
+          <div class="field"><label for="c-aud">I am a…</label>
+            <select class="select" id="c-aud" name="audience"><option value="">Select…</option><option>Parent / guardian</option><option>Student</option><option>Old student</option><option>Partner / organisation</option><option>Member of the public</option></select>
+          </div>
+          <div class="field full"><label for="c-subject">Subject *</label><input class="input" id="c-subject" name="subject" required minlength="3" /></div>
+          <div class="field full"><label for="c-msg">Message *</label><textarea class="textarea" id="c-msg" name="message" required minlength="10"></textarea></div>
+          <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <p class="full muted form-note">Please don’t include sensitive personal information. See our <a href="/privacy/">privacy notice</a>.</p>
+          <button class="btn full" type="submit">Send message <Icon name="arrow-right" size={18} /></button>
+          <p class="form-status full" role="status" data-status data-success="Thank you — your message has been sent to the school office."></p>
+        </div>
+      </form>
+    </div>
+  </section>
+  <section class="map-section" id="map" aria-label="Map">
+    <div class="container">
+      <div class="map" data-reveal="scale">
+        <iframe title="Map showing University Practice Senior High School, Cape Coast" src={`https://maps.google.com/maps?q=${mapQuery}&z=15&output=embed`} loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .contact { display: grid; grid-template-columns: .85fr 1.15fr; gap: clamp(28px, 5vw, 64px); align-items: start; }
+  .contact__info { display: grid; gap: 14px; }
+  .cinfo { display: flex; gap: 16px; padding: 22px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); }
+  .cinfo__icon { flex: none; width: 48px; height: 48px; border-radius: 15px; display: grid; place-items: center; background: var(--brand); color: #fff; }
+  .cinfo div { display: grid; gap: 4px; justify-items: start; }
+  .cinfo h2 { font-size: .76rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .cinfo a:not(.link-arrow), .cinfo p { font-weight: 600; font-size: 1.02rem; text-decoration: none; }
+  .cinfo .link-arrow { font-size: .88rem; margin-top: 4px; }
+  .form-card__title { font-size: 1.8rem; margin-bottom: 20px; }
+  .form-note { font-size: .84rem; }
+  .form-note a { color: var(--brand-ink); }
+  .map-section { padding-bottom: 40px; }
+  .map { border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow); height: clamp(320px, 45vw, 480px); }
+  .map iframe { width: 100%; height: 100%; border: 0; }
+  :global([data-theme='dark']) .map iframe { filter: invert(.9) hue-rotate(180deg) saturate(.8); }
+  @media (max-width: 900px) { .contact { grid-template-columns: 1fr; } }
+</style>

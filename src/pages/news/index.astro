@@ -1,14 +1,43 @@
 ---
-import SiteLayout from '../../layouts/SiteLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import NewsCard from '../../components/NewsCard.astro';
-import { getServerSupabase } from '../../lib/server';
-import type { NewsPost } from '../../lib/types';
-const supabase = getServerSupabase();
-const { data } = supabase ? await supabase.from('news_posts').select('id,title,slug,excerpt,content,cover_image_url,published_at,created_at,category:news_categories(name,slug)').eq('status','published').order('published_at',{ascending:false}).limit(30) : {data:[]};
-const posts = (data || []) as unknown as NewsPost[];
+import EmptyState from '../../components/EmptyState.astro';
+import { getContent, SITE_URL } from '../../lib/content';
+const { news } = await getContent();
+const categories = [...new Set(news.map((n) => n.category || 'General'))];
+const [first, ...rest] = news;
+const crumbs = [{ name: 'News', href: '/news/' }];
+const ld = news.length ? [{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: 'UPSHS News', url: `${SITE_URL}/news/`, mainEntity: { '@type': 'ItemList', itemListElement: news.slice(0, 30).map((n, i) => ({ '@type': 'ListItem', position: i + 1, url: `${SITE_URL}/news/${n.slug}/` })) } }] : [];
 ---
-<SiteLayout title="News & Events | University Practice SHS" description="School news, announcements and stories from University Practice Senior High School, Cape Coast.">
-  <PageHero eyebrow="News & updates" title="The latest from our school community." description="Stories, announcements and achievements that bring the UNIPRA community together." />
-  <section class="section"><div class="container">{posts.length ? <div class="news-grid">{posts.map((post) => <NewsCard post={post}/>)}</div> : <div class="empty-state"><h3>News and stories are coming soon</h3><p>When the school communications team publishes approved updates, they will appear here. In the meantime, explore the school's history and academic information.</p><a class="button button--outline" href="/about/">Explore UNIPRA <span>↗</span></a></div>}</div></section>
-</SiteLayout>
+<BaseLayout title="News & Stories" description="The latest news, stories and achievements from University Practice Senior High School, Cape Coast." breadcrumbs={crumbs} jsonLd={ld}>
+  <PageHero eyebrow="Newsroom" title="News & stories." lead="What’s happening across the classrooms, fields, stages and community of UNIPRA." crumbs={crumbs} compact />
+  <section class="section">
+    <div class="container">
+      {news.length ? (
+        <>
+          {categories.length > 1 && (
+            <div class="filters" data-filter-group="#news-list" role="group" aria-label="Filter by category">
+              <button type="button" data-filter="all" aria-pressed="true">All stories</button>
+              {categories.map((c) => <button type="button" data-filter={c} aria-pressed="false">{c}</button>)}
+            </div>
+          )}
+          <div id="news-list" class="news-list">
+            {first && <div class="news-list__feature"><NewsCard post={first} size="feature" /></div>}
+            {rest.map((p, i) => <NewsCard post={p} i={i % 3} />)}
+          </div>
+          <p class="filter-empty muted" data-filter-empty hidden>No stories in this category yet.</p>
+        </>
+      ) : <EmptyState icon="newspaper" title="Stories are on their way" text="News and stories will appear here as soon as the school publishes them. Subscribe at the bottom of the page to hear first." />}
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .news-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .news-list__feature { grid-column: 1 / -1; }
+  .news-list__feature :global(.news-card--feature) { display: grid; grid-template-columns: 1.3fr 1fr; align-items: center; }
+  .news-list__feature :global(.news-card__body) { padding: 28px 32px; }
+  .filter-empty { text-align: center; padding: 40px; }
+  @media (max-width: 960px) { .news-list { grid-template-columns: 1fr 1fr; } .news-list__feature :global(.news-card--feature) { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) { .news-list { grid-template-columns: 1fr; } }
+</style>

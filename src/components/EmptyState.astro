@@ -1,0 +1,11 @@
+---
+import Icon from './Icon.astro';
+interface Props { icon?: string; title: string; text: string }
+const { icon = 'sparkles', title, text } = Astro.props;
+---
+<div class="empty" data-reveal>
+  <span class="empty__icon"><Icon name={icon} size={28} /></span>
+  <h3>{title}</h3>
+  <p>{text}</p>
+  <slot />
+</div>

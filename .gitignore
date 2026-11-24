@@ -2,11 +2,13 @@ node_modules/
 dist/
 .astro/
 .wrangler/
-worker-configuration.d.ts
 .dev.vars
 .env
 .env.*
 !.env.example
-.DS_Store
-coverage/
+api/node_modules/
+api/.wrangler/
+api/.dev.vars
 *.log
+.DS_Store
+service-account*.json

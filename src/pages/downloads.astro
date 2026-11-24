@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import EmptyState from '../components/EmptyState.astro';
+import Icon from '../components/Icon.astro';
+import { getContent, fmtDate, bytes } from '../lib/content';
+const { downloads } = await getContent();
+const categories = [...new Set(downloads.map((d) => d.category || 'Other'))];
+const crumbs = [{ name: 'Downloads', href: '/downloads/' }];
+const ext = (d: { file: { format?: string; url: string } }) => (d.file.format || d.file.url.split('?')[0]!.split('.').pop() || 'file').toUpperCase().slice(0, 4);
+---
+<BaseLayout title="Downloads — Forms, Prospectus & Documents" description="Download official documents from University Practice SHS, Cape Coast: academic calendar, prospectus, forms, timetables, newsletters and policies." breadcrumbs={crumbs}>
+  <PageHero eyebrow="Downloads" title="Documents & resources." lead="Official forms, the academic calendar, prospectus, timetables and newsletters — all in one place." crumbs={crumbs} compact />
+  <section class="section">
+    <div class="container">
+      {downloads.length ? (
+        <>
+          {categories.length > 1 && (
+            <div class="filters" data-filter-group="#dl-list" role="group" aria-label="Filter documents">
+              <button type="button" data-filter="all" aria-pressed="true">All</button>
+              {categories.map((c) => <button type="button" data-filter={c} aria-pressed="false">{c}</button>)}
+            </div>
+          )}
+          <ul class="dls" id="dl-list">
+            {downloads.map((d, i) => (
+              <li class="dl" data-reveal style={`--i:${i % 6}`} data-filter-item data-category={d.category || 'Other'}>
+                <span class="dl__type">{ext(d)}</span>
+                <div class="dl__info">
+                  <h2>{d.title}</h2>
+                  {d.description && <p>{d.description}</p>}
+                  <small>{[d.category, fmtDate(d.publishedAt, { day: 'numeric', month: 'short', year: 'numeric' }), bytes(d.file.bytes)].filter(Boolean).join(' · ')}</small>
+                </div>
+                <a class="btn btn--ghost btn--sm" href={d.file.url} target="_blank" rel="noopener noreferrer" aria-label={`Download ${d.title}`}><Icon name="download" size={17} /> Download</a>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : <EmptyState icon="download" title="No documents yet" text="The academic calendar, prospectus and forms will be published here when released by the school." />}
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .dls { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .dl { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; padding: 18px 20px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); transition: border-color .3s, transform .4s var(--ease), box-shadow .4s var(--ease); }
+  .dl:hover { border-color: var(--line-strong); transform: translateX(4px); box-shadow: var(--shadow); }
+  .dl__type { width: 54px; height: 62px; border-radius: 10px 18px 10px 10px; display: grid; place-items: center; font-size: .72rem; font-weight: 800; letter-spacing: .06em; color: #fff; background: linear-gradient(160deg, var(--brand), var(--brand-strong)); }
+  .dl__info { display: grid; gap: 3px; }
+  .dl h2 { font-size: 1.05rem; font-weight: 700; }
+  .dl p { color: var(--text-2); font-size: .9rem; }
+  .dl small { color: var(--muted); font-size: .8rem; font-weight: 600; }
+  @media (max-width: 600px) { .dl { grid-template-columns: auto 1fr; } .dl .btn { grid-column: 1 / -1; } }
+</style>

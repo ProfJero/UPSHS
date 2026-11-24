@@ -1,0 +1,11 @@
+---
+import { cld, srcset, type Media as M } from '../lib/content';
+interface Props { media?: M | null; alt?: string; w?: number; ratio?: number; sizes?: string; eager?: boolean; class?: string }
+const { media, alt, w = 800, ratio = 16 / 10, sizes = '(max-width: 640px) 100vw, 33vw', eager = false, class: className } = Astro.props;
+---
+{media?.url ? (
+  <img src={cld(media.url, { w, h: Math.round(w / ratio) })} srcset={srcset(media.url, [400, 640, 960, 1280, 1800].filter((x) => x <= w * 2), ratio)} sizes={sizes}
+       alt={media.alt || alt || ''} width={w} height={Math.round(w / ratio)} loading={eager ? 'eager' : 'lazy'} decoding="async" class={className} />
+) : (
+  <div class="placeholder-art" aria-hidden="true"><img src="/images/brand/crest.webp" alt="" width="110" height="126" loading="lazy" /></div>
+)}

@@ -1,14 +1,80 @@
 ---
-import SiteLayout from '../../layouts/SiteLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
-import { getServerSupabase } from '../../lib/server';
-import type { SchoolEvent } from '../../lib/types';
-const supabase = getServerSupabase();
-const { data } = supabase ? await supabase.from('events').select('id,title,slug,description,location,starts_at,ends_at,cover_image_url,status').eq('status','published').order('starts_at',{ascending:true}).limit(40) : {data:[]};
-const events = (data || []) as SchoolEvent[];
+import EventCard from '../../components/EventCard.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import Icon from '../../components/Icon.astro';
+import { getContent, isUpcoming, fmtDate, SITE_URL } from '../../lib/content';
+const { events } = await getContent();
+const upcoming = events.filter((e) => isUpcoming(e));
+const past = events.filter((e) => !isUpcoming(e)).reverse().slice(0, 24);
+// group upcoming by month
+const months = new Map<string, typeof upcoming>();
+for (const e of upcoming) {
+  const key = fmtDate(e.startsAt, { month: 'long', year: 'numeric' });
+  months.set(key, [...(months.get(key) || []), e]);
+}
+const categories = [...new Set(upcoming.map((e) => e.category || 'Other'))];
+const crumbs = [{ name: 'Events', href: '/events/' }];
+const ld = upcoming.slice(0, 20).map((e) => ({
+  '@context': 'https://schema.org', '@type': 'Event', name: e.title, startDate: e.startsAt, endDate: e.endsAt || undefined,
+  eventStatus: 'https://schema.org/EventScheduled', eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  location: { '@type': 'Place', name: e.location || 'University Practice Senior High School', address: { '@type': 'PostalAddress', addressLocality: 'Cape Coast', addressCountry: 'GH' } },
+  organizer: { '@id': `${SITE_URL}/#school` }, url: `${SITE_URL}/events/${e.slug}/`, description: e.summary,
+}));
 ---
-<SiteLayout title="Events | University Practice SHS" description="Upcoming events and activities at University Practice Senior High School.">
-  <PageHero eyebrow="School calendar" title="Moments that bring our community together." description="Explore upcoming activities, school events and important dates shared by the school."/>
-  <section class="section"><div class="container">{events.length ? <div class="events-list">{events.map((event) => <article class="events-row"><div class="events-date"><strong>{new Date(event.starts_at).toLocaleDateString('en-GH',{day:'2-digit'})}</strong><span>{new Date(event.starts_at).toLocaleDateString('en-GH',{month:'long',year:'numeric'})}</span></div><div class="events-info"><h2><a href={`/events/${event.slug}/`}>{event.title}</a></h2><p>{event.description || 'Further information will be provided by the school.'}</p><span>⌖ {event.location || 'University Practice SHS, Cape Coast'}</span></div>{event.cover_image_url && <img src={event.cover_image_url} alt=""/>}</article>)}</div> : <div class="empty-state"><h3>No upcoming events have been published</h3><p>The school calendar will appear here when approved events are added by an authorised administrator.</p></div>}</div></section>
-</SiteLayout>
-<style>.events-list{display:grid;gap:13px}.events-row{display:grid;grid-template-columns:100px 1fr 160px;gap:22px;align-items:center;padding:22px;border:1px solid var(--line);border-radius:15px}.events-date{background:var(--mint);border-radius:12px;color:var(--green);padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:78px}.events-date strong{font:800 1.8rem Manrope}.events-date span{font-size:.68rem;font-weight:750;text-align:center}.events-info h2 a{color:inherit;text-decoration:none}.events-info h2 a:hover{color:var(--green)}.events-info h2{font:800 1.1rem Manrope;color:var(--navy);margin:0 0 7px}.events-info p{color:var(--muted);font-size:.83rem;line-height:1.65;margin:0 0 9px}.events-info>span{color:var(--green);font-size:.72rem;font-weight:750}.events-row>img{width:160px;height:110px;object-fit:cover;border-radius:10px}@media(max-width:620px){.events-row{grid-template-columns:70px 1fr;gap:13px;padding:14px}.events-row>img{grid-column:2;width:100%;height:140px}.events-date{min-height:70px}.events-date strong{font-size:1.4rem}}</style>
+<BaseLayout title="Events Calendar" description="Upcoming events at University Practice SHS, Cape Coast: term dates, PTA meetings, sports, speech day, cultural events and alumni reunions." breadcrumbs={crumbs} jsonLd={ld}>
+  <PageHero eyebrow="School calendar" title="What’s on at UNIPRA." lead="Term dates, PTA meetings, sports, celebrations and reunions — add them straight to your phone’s calendar." crumbs={crumbs} compact>
+    <div class="cal-actions">
+      <a class="btn btn--accent btn--sm" href="/events/calendar.ics" download><Icon name="calendar-plus" size={17} /> Subscribe to calendar</a>
+      <a class="btn btn--glass btn--sm" href="/announcements/"><Icon name="megaphone" size={17} /> Notice board</a>
+    </div>
+  </PageHero>
+  <section class="section">
+    <div class="container">
+      {upcoming.length ? (
+        <>
+          {categories.length > 1 && (
+            <div class="filters" data-filter-group="#event-months" role="group" aria-label="Filter by category">
+              <button type="button" data-filter="all" aria-pressed="true">All events</button>
+              {categories.map((c) => <button type="button" data-filter={c} aria-pressed="false">{c}</button>)}
+            </div>
+          )}
+          <div id="event-months" class="months">
+            {[...months].map(([month, list]) => (
+              <div class="month">
+                <h2 class="display month__title" data-reveal>{month}</h2>
+                <div class="month__list">{list.map((e, i) => <EventCard event={e} i={i} />)}</div>
+              </div>
+            ))}
+          </div>
+          <p class="muted" data-filter-empty hidden>No upcoming events in this category.</p>
+        </>
+      ) : <EmptyState icon="calendar" title="No upcoming events yet" text="Term dates, PTA meetings and school events will appear here once they are published." />}
+
+      {past.length > 0 && (
+        <details class="past">
+          <summary><span class="display">Past events</span> <span class="chip chip--outline">{past.length}</span> <Icon name="chevron-down" size={20} /></summary>
+          <div class="past__list">{past.map((e) => <EventCard event={e} past />)}</div>
+        </details>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .cal-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .months { display: grid; gap: 48px; }
+  .month { display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: start; }
+  .month__title { font-size: 1.6rem; position: sticky; top: calc(var(--header-h) + 24px); color: var(--brand-ink); }
+  .month__list { display: grid; gap: 14px; }
+  .month:has(.month__list > :not([hidden])) { display: grid; }
+  .month:not(:has(.month__list > :not([hidden]))) { display: none; }
+  @media (max-width: 860px) { .month { grid-template-columns: 1fr; } .month__title { position: static; } }
+  .past { margin-top: 64px; border-top: 1px solid var(--line); padding-top: 24px; }
+  .past summary { display: flex; align-items: center; gap: 12px; cursor: pointer; list-style: none; font-size: 1.5rem; }
+  .past summary::-webkit-details-marker { display: none; }
+  .past summary :global(svg) { margin-left: auto; transition: transform .3s var(--ease); }
+  .past[open] summary :global(svg) { transform: rotate(180deg); }
+  .past__list { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 24px; }
+  @media (max-width: 860px) { .past__list { grid-template-columns: 1fr; } }
+</style>

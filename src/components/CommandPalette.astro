@@ -1,0 +1,46 @@
+---
+import Icon from './Icon.astro';
+---
+<div class="cmdk" data-cmdk hidden transition:persist="cmdk">
+  <div class="cmdk__backdrop" data-cmdk-close></div>
+  <div class="cmdk__panel" role="dialog" aria-modal="true" aria-label="Search the website">
+    <div class="cmdk__search">
+      <Icon name="search" size={20} />
+      <input type="search" placeholder="Search news, events, pages, documents…" aria-label="Search" autocomplete="off" spellcheck="false" data-cmdk-input
+             role="combobox" aria-expanded="true" aria-controls="cmdk-results" aria-autocomplete="list" />
+      <kbd data-cmdk-close>Esc</kbd>
+    </div>
+    <ul class="cmdk__results" id="cmdk-results" role="listbox" data-cmdk-results></ul>
+    <div class="cmdk__foot">
+      <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> open</span>
+      <a href="/search/" data-cmdk-all>See all results →</a>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  .cmdk { position: fixed; inset: 0; z-index: 180; display: grid; justify-items: center; align-items: start; padding: 12vh 16px 16px; }
+  .cmdk[hidden] { display: none; }
+  .cmdk__backdrop { position: absolute; inset: 0; background: rgb(5 8 25 / .5); backdrop-filter: blur(6px); animation: fade-in .25s var(--ease); }
+  .cmdk__panel { position: relative; width: min(680px, 100%); max-height: 72vh; display: flex; flex-direction: column; background: var(--bg-elev); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow-lg); overflow: hidden; animation: cmdk-in .35s var(--ease); }
+  @keyframes cmdk-in { from { opacity: 0; transform: translateY(-14px) scale(.97); } }
+  @keyframes fade-in { from { opacity: 0; } }
+  .cmdk__search { display: flex; align-items: center; gap: 12px; padding: 0 18px; border-bottom: 1px solid var(--line); color: var(--muted); }
+  .cmdk__search input { flex: 1; height: 62px; border: 0; background: none; font-size: 1.06rem; color: var(--text); outline: none; }
+  .cmdk__search input::-webkit-search-cancel-button { display: none; }
+  .cmdk kbd { font: 600 .72rem var(--font-sans); padding: 3px 7px; border-radius: 7px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); cursor: default; }
+  .cmdk__results { list-style: none; margin: 0; padding: 8px; overflow-y: auto; }
+  .cmdk__group { padding: 12px 12px 6px; font-size: .7rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .cmdk__item a { display: flex; align-items: center; gap: 14px; padding: 11px 12px; border-radius: 13px; text-decoration: none; }
+  .cmdk__item[aria-selected='true'] a { background: var(--brand-tint); }
+  .cmdk__item-icon { flex: none; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--surface-2); color: var(--brand-ink); }
+  .cmdk__item strong { display: block; font-size: .95rem; font-weight: 650; }
+  .cmdk__item small { display: block; color: var(--muted); font-size: .8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 520px; }
+  .cmdk__item mark { background: var(--accent-tint); color: inherit; border-radius: 3px; padding: 0 1px; }
+  .cmdk__empty { padding: 36px 16px; text-align: center; color: var(--muted); }
+  .cmdk__foot { display: flex; gap: 18px; align-items: center; padding: 11px 18px; border-top: 1px solid var(--line); font-size: .78rem; color: var(--muted); }
+  .cmdk__foot span { display: inline-flex; gap: 4px; align-items: center; }
+  .cmdk__foot a { margin-left: auto; color: var(--brand-ink); font-weight: 700; text-decoration: none; }
+  @media (max-width: 600px) { .cmdk { padding-top: 8px; } .cmdk__foot span { display: none; } }
+</style>

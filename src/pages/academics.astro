@@ -1,12 +1,123 @@
 ---
-import SiteLayout from '../layouts/SiteLayout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Icon from '../components/Icon.astro';
+import { PROGRAMMES, CORE_SUBJECTS, FACILITIES } from '../data/school';
+const crumbs = [{ name: 'Academics', href: '/academics/' }];
+const slug = (t: string) => t.toLowerCase().replace(/\s+/g, '-');
+const ld = [{
+  '@context': 'https://schema.org', '@type': 'ItemList', name: 'Elective programmes at UPSHS',
+  itemListElement: PROGRAMMES.map((p, i) => ({ '@type': 'ListItem', position: i + 1, item: { '@type': 'EducationalOccupationalProgram', name: p.title, description: p.text, provider: { '@id': 'https://upshs.pages.dev/#school' }, educationalProgramMode: 'full-time', timeToComplete: 'P3Y' } })),
+}];
 ---
-<SiteLayout title="Academics | University Practice SHS" description="Explore the academic experience and learning environment at University Practice Senior High School, Cape Coast.">
-  <PageHero eyebrow="Academics" title="Learning that opens possibilities." description="An introduction to the school's academic life, learning environment and commitment to the growth of every student." />
-  <section class="section"><div class="container"><div class="section-heading"><span class="eyebrow"><span></span> The learning experience</span><h2>Curiosity, commitment and growth.</h2><p>Academic life is at the heart of the school experience. This section will provide students, families and the wider community with accurate information about programmes, departments and learning support.</p></div><div class="academics-grid"><article><span class="academics-icon">01</span><h3>Academic programmes</h3><p>Official programme and elective combinations, with guidance on subject pathways.</p></article><article><span class="academics-icon">02</span><h3>Departments</h3><p>Profiles of academic departments, subject areas and their contribution to learning.</p></article><article><span class="academics-icon">03</span><h3>Learning facilities</h3><p>Information about classrooms, laboratories, library facilities and other learning spaces.</p></article><article><span class="academics-icon">04</span><h3>Student development</h3><p>Academic support, clubs, competitions and activities that extend learning beyond lessons.</p></article></div><div class="verification-note"><strong>Programme information awaiting school confirmation</strong><p>To avoid publishing incorrect admissions or programme guidance, the current elective programmes, subject combinations and department details will be added after verification by the school's academic leadership.</p></div></div></section>
-  <section class="section section--wash"><div class="container split"><div><span class="eyebrow"><span></span> Beyond the classroom</span><h2 class="page-heading">A complete school experience.</h2><p class="body-copy">Learning also happens through leadership, creativity, collaboration, sport, culture and service. The website will help the school share these activities and celebrate the people who make them possible.</p><a class="button button--outline" href="/news/">Read school stories <span>↗</span></a></div><div class="academic-art"><div class="academic-art__book">KNOWLEDGE<br/><span>IN ACTION</span></div><div class="academic-art__line academic-art__line--one"></div><div class="academic-art__line academic-art__line--two"></div></div></div></section>
-</SiteLayout>
+<BaseLayout title="Academics — Programmes, Subjects & Facilities" description="Academic programmes at University Practice SHS, Cape Coast: General Science, General Arts, Business, Home Economics and Visual Arts, plus core subjects, facilities and learning support." breadcrumbs={crumbs} jsonLd={ld}>
+  <PageHero eyebrow="Academics" title="Learning that opens possibilities." lead="A three-year Senior High School programme that combines strong core subjects with an elective pathway chosen for each student’s strengths." crumbs={crumbs}>
+    <div class="jump" data-reveal>
+      {PROGRAMMES.map((p) => <a href={`#${slug(p.title)}`}><Icon name={p.icon} size={16} /> {p.title}</a>)}
+    </div>
+  </PageHero>
+
+  <section class="section section--tight">
+    <div class="container core">
+      <div>
+        <p class="eyebrow" data-reveal>For every student</p>
+        <h2 class="display h2" data-reveal style="--i:1">The <em>core</em> curriculum.</h2>
+        <p class="lead" data-reveal style="--i:2">All students study the core subjects, which build the foundations examined in the WASSCE and required for further study.</p>
+      </div>
+      <ul class="core__list" data-stagger>
+        {CORE_SUBJECTS.map((c, i) => <li data-reveal><span class="display">0{i + 1}</span>{c}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <SectionHead eyebrow="Elective programmes" title="Choose a path. <em>Go far.</em>" />
+      <div class="progs">
+        {PROGRAMMES.map((p, i) => (
+          <article id={slug(p.title)} class:list={['prog', `prog--${p.color}`]} data-reveal>
+            <div class="prog__head">
+              <span class="prog__icon"><Icon name={p.icon} size={30} /></span>
+              <span class="prog__n display">0{i + 1}</span>
+            </div>
+            <h3 class="display">{p.title}</h3>
+            <p>{p.text}</p>
+            <ul>{p.subjects.map((sub) => <li>{sub}</li>)}</ul>
+          </article>
+        ))}
+      </div>
+      <p class="note" data-reveal><Icon name="info" size={18} /> Subject combinations within each programme are set by the school in line with the national curriculum and may change from year to year. Contact the school for the current combinations.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <SectionHead eyebrow="Learning environment" title="Spaces built for <em>learning</em>." lead="Our location within the University of Cape Coast community gives students a uniquely academic environment." />
+      <div class="facilities" data-stagger>
+        {FACILITIES.map((f) => (
+          <div class="facility" data-reveal>
+            <span class="facility__icon"><Icon name={f.icon} size={24} /></span>
+            <h3>{f.title}</h3>
+            <p>{f.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--inverse">
+    <div class="container split">
+      <div>
+        <p class="eyebrow">Beyond lessons</p>
+        <h2 class="display h2">Support for every learner.</h2>
+      </div>
+      <ul class="support" data-stagger>
+        <li data-reveal><Icon name="users" size={22} /><div><strong>Form & house teachers</strong><span>Every student has teachers who follow their progress and wellbeing.</span></div></li>
+        <li data-reveal><Icon name="compass" size={22} /><div><strong>Guidance & counselling</strong><span>Help with study skills, subject choices, careers and personal matters.</span></div></li>
+        <li data-reveal><Icon name="book-open" size={22} /><div><strong>Prep & revision</strong><span>Structured study time and WASSCE preparation.</span></div></li>
+        <li data-reveal><Icon name="trophy" size={22} /><div><strong>Competitions</strong><span>Quiz, debate, science fairs and academic contests.</span></div></li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
 <style>
-.academics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:34px}.academics-grid article{padding:23px 20px;border:1px solid var(--line);border-radius:15px;background:white}.academics-icon{width:40px;height:40px;border-radius:12px;background:var(--mint);display:grid;place-items:center;color:var(--green);font:800 .9rem Manrope}.academics-grid h3{font:800 1rem Manrope;color:var(--navy);margin:18px 0 8px}.academics-grid p,.body-copy{font-size:.85rem;line-height:1.7;color:var(--muted)}.verification-note{margin-top:22px;padding:18px 20px;border-radius:12px;background:#fff8e8;border:1px solid #f1dfb8}.verification-note strong{font-size:.85rem;color:#735a27}.verification-note p{font-size:.78rem;line-height:1.6;color:#826f4b;margin:8px 0 0}.academic-art{height:350px;border-radius:22px;background:linear-gradient(145deg,#dcebe3,#eff4e9);position:relative;overflow:hidden;display:grid;place-items:center}.academic-art__book{position:relative;z-index:1;width:220px;height:170px;background:#0a6446;border-radius:12px 28px 12px 28px;color:white;display:grid;place-content:center;text-align:center;font:800 1.4rem/1.3 Manrope;box-shadow:15px 22px 0 #082b461c;transform:rotate(-7deg)}.academic-art__book span{font-size:.7rem;letter-spacing:.3em;color:#a6e2bd}.academic-art__line{position:absolute;border:1px solid #fff;width:390px;height:390px;border-radius:50%}.academic-art__line--two{width:480px;height:480px}.verification-note{max-width:100%}@media(max-width:900px){.academics-grid{grid-template-columns:1fr 1fr}}@media(max-width:620px){.academics-grid{grid-template-columns:1fr}}
+  .jump { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .jump a { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; background: rgb(255 255 255 / .08); border: 1px solid rgb(255 255 255 / .14); color: #fff; text-decoration: none; font-size: .88rem; font-weight: 600; transition: background .2s, transform .3s var(--ease); }
+  .jump a:hover { background: rgb(255 255 255 / .16); transform: translateY(-2px); }
+  .jump :global(svg) { color: var(--gold); }
+  .core { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 64px); align-items: center; }
+  .core > div { display: grid; gap: 16px; }
+  .core__list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .core__list li { display: grid; gap: 6px; padding: 22px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); font-weight: 700; font-size: 1.05rem; }
+  .core__list span { color: var(--brand-ink); font-size: 1.8rem; font-weight: 500; }
+  @media (max-width: 860px) { .core { grid-template-columns: 1fr; } }
+  .progs { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+  .prog { --tone: var(--brand); position: relative; overflow: hidden; display: grid; gap: 12px; align-content: start; padding: 30px; border-radius: var(--radius-lg); background: var(--surface); border: 1px solid var(--line); scroll-margin-top: calc(var(--header-h) + 24px); transition: transform .5s var(--ease), box-shadow .5s var(--ease); }
+  .prog::before { content: ''; position: absolute; inset: 0 0 auto; height: 4px; background: var(--tone); transform: scaleX(.15); transform-origin: left; transition: transform .7s var(--ease); }
+  .prog:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+  .prog:hover::before, .prog:target::before { transform: scaleX(1); }
+  .prog:target { box-shadow: 0 0 0 2px var(--tone), var(--shadow-lg); }
+  .prog--sky { --tone: var(--sky); } .prog--gold { --tone: color-mix(in oklab, var(--gold) 85%, black); } .prog--flame { --tone: var(--flame); } .prog--emerald { --tone: var(--emerald); }
+  .prog__head { display: flex; justify-content: space-between; align-items: start; }
+  .prog__icon { width: 62px; height: 62px; border-radius: 18px; display: grid; place-items: center; color: #fff; background: var(--tone); box-shadow: 0 14px 26px -14px var(--tone); }
+  .prog__n { font-size: 3rem; line-height: 1; color: var(--surface-3); }
+  .prog h3 { font-size: 1.7rem; margin-top: 8px; }
+  .prog p { color: var(--muted); }
+  .prog ul { list-style: none; padding: 0; margin: 6px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .prog li { padding: 5px 11px; border-radius: 999px; font-size: .8rem; font-weight: 600; background: color-mix(in oklab, var(--tone) 10%, var(--bg-elev)); color: color-mix(in oklab, var(--tone) 65%, var(--text)); }
+  .note { display: flex; gap: 10px; align-items: flex-start; margin-top: 24px; color: var(--muted); font-size: .9rem; }
+  .note :global(svg) { flex: none; margin-top: 3px; color: var(--brand-ink); }
+  .facilities { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .facility { padding: 26px; border-radius: var(--radius-lg); border: 1px solid var(--line); background: var(--surface); display: grid; gap: 8px; transition: border-color .3s, transform .4s var(--ease); }
+  .facility:hover { border-color: var(--brand-ink); transform: translateY(-3px); }
+  .facility__icon { width: 50px; height: 50px; border-radius: 15px; display: grid; place-items: center; background: var(--brand-tint); color: var(--brand-ink); margin-bottom: 6px; }
+  .facility h3 { font-size: 1.05rem; font-weight: 700; }
+  .facility p { color: var(--muted); font-size: .92rem; }
+  @media (max-width: 860px) { .facilities { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .facilities, .core__list { grid-template-columns: 1fr; } }
+  .support { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  .support li { display: flex; gap: 16px; padding: 20px; border-radius: var(--radius); background: rgb(255 255 255 / .05); border: 1px solid rgb(255 255 255 / .1); color: var(--gold); }
+  .support strong { display: block; color: #fff; }
+  .support span { color: #b4bad9; font-size: .92rem; }
 </style>
